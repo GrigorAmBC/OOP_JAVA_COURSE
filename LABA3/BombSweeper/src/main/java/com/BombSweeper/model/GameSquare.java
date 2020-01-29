@@ -7,11 +7,12 @@ import com.BombSweeper.Observer;
 
 public class GameSquare {
   public enum SquareState{
-    Touched, Flag, Unknown, Untouched
+    TouchedEmpty, Flag, Untouched, Exploded
   }
 
   private int coordinateX;
   private int coordinateY;
+  private boolean isFired = false;
   private boolean bomb = false;
   private SquareState state = SquareState.Untouched;
   private int numberOfMinsAround = 0;
@@ -39,7 +40,7 @@ public class GameSquare {
     return coordinateY;
   }
 
-  int getNumberOfMinsAround() {
+  public int getNumberOfMinsAround() {
     return numberOfMinsAround;
   }
 
@@ -61,6 +62,12 @@ public class GameSquare {
     this.state = state;
   }
 
+  public void setMineFired(boolean isFired) {
+    this.isFired = isFired;
+  }
 
+  public boolean isFired() {
+    return isFired;
+  }
 
 }

@@ -2,50 +2,47 @@ package com.BombSweeper.model;
 
 import java.util.*;
 
-public class GameGrid {
+public class GameGrid {//todo: make changes available
   private List<GameSquare> grid = new ArrayList<>();
-  private int sizeX;
-  private int sizeY;
-  private int numberOfMins;
+  private int rows;
+  private int cols;
+  private int numberOfMines;
 
-  public int getSizeX() { //TODO: replace with tuple in BL??
-    return sizeX;
+  public int getColumnNumber() { //TODO: replace with tuple in BL??
+    return rows;
   }
 
-  public int getSizeY() { //TODO: replace with tuple in BL??
-    return sizeY;
+  public int getRowNumber() { //TODO: replace with tuple in BL??
+    return cols;
   }
 
-  public GameGrid(int sizeX, int sizeY, int numberOfMins) {
-    if (sizeX < 1 || sizeY < 1) {
-      throw new IllegalArgumentException("Wrong size of the game grid");
-    }
-    if (numberOfMins < 0) {
-      throw new IllegalArgumentException("Wrong number of mins");
-    }
-
-    this.sizeX = sizeX;
-    this.sizeY = sizeY;
-    this.numberOfMins = numberOfMins;
-    setup();
+  public GameGrid() {
+    this.rows = 0;
+    this.cols = 0;
+    this.numberOfMines = 0;
   }
 
-  private void setup() {
+  public void setup(int rows, int columns, int numberOfMines) {
+    assert(rows > 0 && columns > 0 && numberOfMines > 0);//TODO: move this to another place
+    this.rows = rows;
+    this.cols = columns;
+    this.numberOfMines = numberOfMines;
+
     grid.clear();
     // setup grid
-    List<Boolean> tmp = new ArrayList<>(sizeX * sizeY);
-    for (int i = 0; i < numberOfMins; i++) {
+    List<Boolean> tmp = new ArrayList<>(this.rows * cols);
+    for (int i = 0; i < this.numberOfMines; i++) {
       tmp.set(i, true);
     }
     Collections.shuffle(tmp);
-    for (int i = 0; i < sizeX * sizeY; i++) {// TODO: check this
+    for (int i = 0; i < this.rows * cols; i++) {// TODO: check this
       grid.add(new GameSquare(getXByPosition(i), getYByPosition(i), tmp.get(i)));
     }
     setNumberOfMinsAroundSquares();
   }
 
   private void setNumberOfMinsAroundSquares() {
-    for (int i = 0, end = sizeX * sizeY; i < end; i++) {
+    for (int i = 0, end = rows * cols; i < end; i++) {
       int k = 0;
       if (i - 1 >= 0 && grid.get(i - 1).hasMine()) {
         k++;
@@ -53,22 +50,22 @@ public class GameGrid {
       if (i + 1 < end && grid.get(i + 1).hasMine()) {
         k++;
       }
-      if (i - sizeX >= 0 && grid.get(i - sizeX).hasMine()) {
+      if (i - rows >= 0 && grid.get(i - rows).hasMine()) {
         k++;
       }
-      if (i + sizeX < end && grid.get(i + sizeX).hasMine()) {
+      if (i + rows < end && grid.get(i + rows).hasMine()) {
         k++;
       }
-      if (i - sizeX + 1 >= 0 && grid.get(i - sizeX + 1).hasMine()) {
+      if (i - rows + 1 >= 0 && grid.get(i - rows + 1).hasMine()) {
         k++;
       }
-      if (i - sizeX - 1 >= 0 && grid.get(i - sizeX - 1).hasMine()) {
+      if (i - rows - 1 >= 0 && grid.get(i - rows - 1).hasMine()) {
         k++;
       }
-      if (i + sizeX + 1 < end && grid.get(i + sizeX + 1).hasMine()) {
+      if (i + rows + 1 < end && grid.get(i + rows + 1).hasMine()) {
         k++;
       }
-      if (i + sizeX - 1 < end && grid.get(i + sizeX - 1).hasMine()) {
+      if (i + rows - 1 < end && grid.get(i + rows - 1).hasMine()) {
         k++;
       }
 
@@ -76,13 +73,17 @@ public class GameGrid {
     }
   }
 
+  public GameSquare getGameSquare(int position) {
+    assert(position >= 0);
+    return grid.get(position);
+  }
 
   private int getXByPosition(int X) { // TODO: check
-    return X / sizeY + 1;
+    return X / cols + 1;
   }
 
   private int getYByPosition(int Y) {// TODO: check
-    return Y / sizeX + 1;
+    return Y / rows + 1;
   }
 
   private int getPositionInList(int X, int Y) {// TODO: check
@@ -97,7 +98,14 @@ public class GameGrid {
     return grid.get(getPositionInList(X, Y));
   }
 
-  public int getNumberOfMins() {
-    return numberOfMins;
+  public GameSquare getSquare(int i) {
+    assert(i < grid.size());
+    return grid.get(i);
   }
+
+  public int getNumberOfMines() {
+    return numberOfMines;
+  }
+
+
 }
