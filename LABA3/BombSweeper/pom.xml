@@ -6,15 +6,15 @@
 
     <groupId>com.BombSweeper</groupId>
     <artifactId>BombSweeper</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>final</version>
 
-<dependencies>
-    <dependency>
-        <groupId>com.google.code.gson</groupId>
-        <artifactId>gson</artifactId>
-        <version>2.8.6</version>
-    </dependency>
-</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.6</version>
+        </dependency>
+    </dependencies>
 
 
 </project>

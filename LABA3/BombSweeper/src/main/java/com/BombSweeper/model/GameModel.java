@@ -27,7 +27,6 @@ public class GameModel {
     mineModel = new Model<>(0);
     scoreList = new ArrayList<>();
     isGameOn = false;
-    setScoreList();
 
     timer = new Timer(1000, e -> {
       timerModel.setProperty(timerModel.getProperty() + 1);
@@ -39,6 +38,7 @@ public class GameModel {
     } catch (IOException e) {
       e.printStackTrace();
     }
+    setScoreList();
   }
 
   public Model<GameGrid> getGameGridModel() {
