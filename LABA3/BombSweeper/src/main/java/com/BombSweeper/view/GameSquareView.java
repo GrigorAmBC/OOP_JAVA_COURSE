@@ -22,6 +22,7 @@ public class GameSquareView extends JButton {
     this.state = SquareState.Untouched;
     setIcon(iconUntouched);
     setPreferredSize(new Dimension(SIZE, SIZE));
+    setMargin(new Insets(1, 1, 1, 1));
   }
 
 
@@ -29,7 +30,7 @@ public class GameSquareView extends JButton {
     return state;
   }
 
-  public void setState(SquareState state) {
+  private void setState(SquareState state) {
     this.state = state;
 
     if (state == SquareState.TouchedEmpty) {
@@ -47,9 +48,10 @@ public class GameSquareView extends JButton {
 
   public void setState(SquareState state, int numberOfMines) {
     if (state == SquareState.TouchedEmpty) {
-      setBackground(Color.lightGray);
+      setBackground(Color.white);
       setIcon(null);
-      setText(String.valueOf(numberOfMines));
+      if (numberOfMines != 0)
+        setText(String.valueOf(numberOfMines));
     } else
       setState(state);
   }

@@ -1,50 +1,31 @@
 package com.BombSweeper.model;
 
 
-import com.BombSweeper.Observable;
-import com.BombSweeper.Observer;
-
-
 public class GameSquare {
-  public enum SquareState{
-    TouchedEmpty, Flag, Untouched, Exploded
-  }
-
-  private int coordinateX;
-  private int coordinateY;
-  private boolean isFired = false;
-  private boolean bomb = false;
+  private int position;
+  private boolean bomb;
   private SquareState state = SquareState.Untouched;
   private int numberOfMinsAround = 0;
 
-  public GameSquare(int X, int Y) {
-    if (X < 1 || Y < 1)
-      throw new IllegalArgumentException("W");
-    coordinateX = X;
-    coordinateY = Y;
+  public enum SquareState {
+    TouchedEmpty, Flag, Untouched, Exploded
   }
 
-  public GameSquare(int X, int Y, boolean isBomb) {
-    if (X < 1 || Y < 1)
-      throw new IllegalArgumentException("W");
-    coordinateX = X;
-    coordinateY = Y;
+  public GameSquare(int position, boolean isBomb) {
+    assert position >= 0;
+    this.position = position;
     bomb = isBomb;
   }
 
-  public int getCoordinateX() {
-    return coordinateX;
+  public int getPosition() {
+    return position;
   }
 
-  public int getCoordinateY() {
-    return coordinateY;
-  }
-
-  public int getNumberOfMinsAround() {
+  public int getNumberOfMinesAround() {
     return numberOfMinsAround;
   }
 
-  public void setNumberOfMinsAround(int number) {
+  public void setNumberOfMinesAround(int number) {
     if (number < 0)
       throw new IllegalArgumentException("Negative number of mins around a square");
     numberOfMinsAround = number;
@@ -61,13 +42,4 @@ public class GameSquare {
   public void setState(SquareState state) {
     this.state = state;
   }
-
-  public void setMineFired(boolean isFired) {
-    this.isFired = isFired;
-  }
-
-  public boolean isFired() {
-    return isFired;
-  }
-
 }

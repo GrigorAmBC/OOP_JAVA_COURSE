@@ -1,23 +1,21 @@
 package com.BombSweeper.view;
 
-import com.BombSweeper.model.GameGrid;
-import com.BombSweeper.model.GameSquare;
+import com.BombSweeper.model.*;
 import com.BombSweeper.model.GameSquare.SquareState;
-import com.BombSweeper.model.IModelSubscriber;
-import com.BombSweeper.model.Model;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class GameGridView extends JPanel implements IModelSubscriber<GameGrid>, ActionListener {
+public class GameGridView extends JPanel implements IModelSubscriber<GameGrid> {
   private int rows;
   private int cols;
   private List<GameSquareView> squareViews;
+  private GameModel model = null;
 
   public GameGridView() {
     squareViews = new ArrayList<>();
@@ -33,7 +31,26 @@ public class GameGridView extends JPanel implements IModelSubscriber<GameGrid>, 
 
     for (int i = 0; i < rows * cols; i++) {
       GameSquareView squareView = new GameSquareView();
-      squareView.addActionListener(this);//TODO: do we need to remove listener before it?
+      squareView.setPosition(i);
+      squareView.addMouseListener(new MouseAdapter() {
+        @Override
+        public void mousePressed(MouseEvent e) {
+          super.mousePressed(e);
+          SquareState state = squareView.getState();
+          if (SwingUtilities.isRightMouseButton(e)) {
+            if (state == SquareState.Flag) {
+              model.editGameSquare(squareView.getPosition(), SquareState.Untouched);
+            } else if (state == SquareState.Untouched) {
+              model.editGameSquare(squareView.getPosition(), SquareState.Flag);
+            }
+          } else if (SwingUtilities.isLeftMouseButton(e)) {
+            if (state == SquareState.Untouched) {
+              model.editGameSquare(squareView.getPosition(), SquareState.TouchedEmpty);
+            }
+          }
+        }
+      });
+
       squareViews.add(squareView);
       add(squareView);
     }
@@ -42,28 +59,37 @@ public class GameGridView extends JPanel implements IModelSubscriber<GameGrid>, 
   @Override
   public void modelChanged(Model<GameGrid> model) {
     GameGrid gridData = model.getProperty();
-    if (rows != gridData.getRowNumber() || cols != gridData.getColumnNumber()) {
-      setupGrid(gridData.getRowNumber(), gridData.getColumnNumber());
+    if (rows != gridData.getRowCount() || cols != gridData.getColumnCount()) {
+      setupGrid(gridData.getRowCount(), gridData.getColumnCount());
     }
-    //TODO: subscribe on result Model<Result>, and show bombs when it's the end
+
     ListIterator<GameSquare> iterator = gridData.getIterator();
+    for (int i = 0; iterator.hasNext(); i++) {
+      GameSquare square = iterator.next();
+      GameSquareView squareView = squareViews.get(i);
+      squareView.setState(square.getState(), square.getNumberOfMinesAround());
+    }
+
+    if (gridData.getResult() == GameGrid.Result.Lose) {
+      showMines(gridData);
+    }
+  }
+
+  private void showMines(GameGrid gameGrid) {
+    ListIterator<GameSquare> iterator = gameGrid.getIterator();
 
     for (int i = 0; iterator.hasNext(); i++) {
       GameSquare square = iterator.next();
       GameSquareView squareView = squareViews.get(i);
 
-      if (square.getState() == squareView.getState())
-        continue;
+      if (square.hasMine()) {
+        squareView.setState(SquareState.Exploded, 0);
+      }
 
-      if (square.getState() == SquareState.TouchedEmpty) {
-        squareView.setState(square.getState(), square.getNumberOfMinsAround());
-      } else
-        squareView.setState(square.getState());
     }
   }
 
-  @Override
-  public void actionPerformed(ActionEvent e) {
-
+  public void setControllerModel(GameModel model) {
+    this.model = model;
   }
 }

@@ -1,7 +1,6 @@
 package com.BombSweeper.model;
 
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Model<P> {
@@ -10,7 +9,7 @@ public class Model<P> {
 
   public Model(P property) {
     if (property == null)
-      throw new NullPointerException("Пустой параметр");
+      throw new NullPointerException("Empty parameter");
     this.property = property;
   }
 
@@ -20,8 +19,9 @@ public class Model<P> {
 
   public void setProperty(P property) {
     if (property == null)
-      throw new NullPointerException("Пустой параметр");
+      throw new NullPointerException("Empty parameter");
     this.property = property;
+    notifySubscribers();
   }
 
   protected void notifySubscribers() {
@@ -37,9 +37,9 @@ public class Model<P> {
 
   public void subscribe(IModelSubscriber<P> subscriber) {
     if (subscriber == null)
-      throw new NullPointerException("Пустой параметр");
+      throw new NullPointerException("Empty parameter");
     if (subscribers.contains(subscriber)) {
-      throw new IllegalArgumentException("Повторная подписка: " + subscriber);
+      throw new IllegalArgumentException("Repeated subscription: " + subscriber);
     }
 
     subscribers.add(subscriber);
@@ -48,9 +48,9 @@ public class Model<P> {
 
   public void unsubscribe(IModelSubscriber<P> subscriber) {
     if (subscriber == null)
-      throw new NullPointerException("Пустой параметр");
+      throw new NullPointerException("Empty parameter");
     if (!subscribers.contains(subscriber))
-      throw new IllegalArgumentException("Неизвестный подписчик: " +
+      throw new IllegalArgumentException("Unknown subscriber: " +
               subscriber);
     subscribers.remove(subscriber);
   }

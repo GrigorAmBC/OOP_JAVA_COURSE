@@ -2,18 +2,23 @@ package com.BombSweeper.model;
 
 import java.util.*;
 
-public class GameGrid {//todo: make changes available
-  private List<GameSquare> grid = new ArrayList<>();
+public class GameGrid {
+  private List<GameSquare> gridList = new ArrayList<>();
   private int rows;
   private int cols;
   private int numberOfMines;
+  private Result result = Result.NotDefined;
 
-  public int getColumnNumber() { //TODO: replace with tuple in BL??
-    return rows;
+  public enum Result {
+    NotDefined, Win, Lose
   }
 
-  public int getRowNumber() { //TODO: replace with tuple in BL??
+  public int getColumnCount() {
     return cols;
+  }
+
+  public int getRowCount() {
+    return rows;
   }
 
   public GameGrid() {
@@ -23,89 +28,110 @@ public class GameGrid {//todo: make changes available
   }
 
   public void setup(int rows, int columns, int numberOfMines) {
-    assert(rows > 0 && columns > 0 && numberOfMines > 0);//TODO: move this to another place
+    assert (rows > 0 && columns > 0 && numberOfMines > 0);
     this.rows = rows;
     this.cols = columns;
     this.numberOfMines = numberOfMines;
+    this.result = Result.NotDefined;
 
-    grid.clear();
-    // setup grid
-    List<Boolean> tmp = new ArrayList<>(this.rows * cols);
-    for (int i = 0; i < this.numberOfMines; i++) {
-      tmp.set(i, true);
+    gridList.clear();
+
+    List<Boolean> minePositions = new ArrayList<>();
+    for (int i = 0; i < rows * columns; i++) {
+      minePositions.add(i < numberOfMines);
     }
-    Collections.shuffle(tmp);
-    for (int i = 0; i < this.rows * cols; i++) {// TODO: check this
-      grid.add(new GameSquare(getXByPosition(i), getYByPosition(i), tmp.get(i)));
+    Collections.shuffle(minePositions);
+    for (int i = 0; i < rows * columns; i++) {
+      gridList.add(new GameSquare(i, minePositions.get(i)));
     }
-    setNumberOfMinsAroundSquares();
+    setNumberOfMinesAroundSquares();
   }
 
-  private void setNumberOfMinsAroundSquares() {
+  private void setNumberOfMinesAroundSquares() {
     for (int i = 0, end = rows * cols; i < end; i++) {
       int k = 0;
-      if (i - 1 >= 0 && grid.get(i - 1).hasMine()) {
-        k++;
-      }
-      if (i + 1 < end && grid.get(i + 1).hasMine()) {
-        k++;
-      }
-      if (i - rows >= 0 && grid.get(i - rows).hasMine()) {
-        k++;
-      }
-      if (i + rows < end && grid.get(i + rows).hasMine()) {
-        k++;
-      }
-      if (i - rows + 1 >= 0 && grid.get(i - rows + 1).hasMine()) {
-        k++;
-      }
-      if (i - rows - 1 >= 0 && grid.get(i - rows - 1).hasMine()) {
-        k++;
-      }
-      if (i + rows + 1 < end && grid.get(i + rows + 1).hasMine()) {
-        k++;
-      }
-      if (i + rows - 1 < end && grid.get(i + rows - 1).hasMine()) {
-        k++;
-      }
-
-      grid.get(i).setNumberOfMinsAround(k);
+      int curX = getXByPosition(i), curY = getYByPosition(i);
+      for (int x = curX - 1; x <= curX + 1; x++)
+        for (int y = curY - 1; y <= curY + 1; y++)
+          if (checkCoordinate(x, y) && getSquare(x, y).hasMine()) {
+            k++;
+          }
+      gridList.get(i).setNumberOfMinesAround(k);
     }
   }
 
-  public GameSquare getGameSquare(int position) {
-    assert(position >= 0);
-    return grid.get(position);
+  private GameSquare getSquare(int X, int Y) {
+    return gridList.get(getPositionByCoordinates(X, Y));
   }
 
-  private int getXByPosition(int X) { // TODO: check
-    return X / cols + 1;
-  }
-
-  private int getYByPosition(int Y) {// TODO: check
-    return Y / rows + 1;
-  }
-
-  private int getPositionInList(int X, int Y) {// TODO: check
-    return X * Y - 1;
+  private boolean checkCoordinate(int x, int y) {
+    return x >= 0 && x < cols && y >= 0 && y < rows;
   }
 
   public ListIterator<GameSquare> getIterator() {
-    return grid.listIterator();
-  }
-
-  public GameSquare getSquare(int X, int Y) {
-    return grid.get(getPositionInList(X, Y));
+    return gridList.listIterator();
   }
 
   public GameSquare getSquare(int i) {
-    assert(i < grid.size());
-    return grid.get(i);
+    assert (i < gridList.size());
+    return gridList.get(i);
   }
 
-  public int getNumberOfMines() {
-    return numberOfMines;
+  public void openGameSquaresAroundZero(int position) {
+    assert position < gridList.size();
+
+    if (gridList.get(position).getState() == GameSquare.SquareState.TouchedEmpty) {
+      return;
+    } else if (gridList.get(position).getNumberOfMinesAround() != 0) {
+      gridList.get(position).setState(GameSquare.SquareState.TouchedEmpty);
+      return;
+    } else {
+      gridList.get(position).setState(GameSquare.SquareState.TouchedEmpty);
+    }
+
+    int curX = getXByPosition(position), curY = getYByPosition(position);
+    for (int x = curX - 1; x <= curX + 1; x++)
+      for (int y = curY - 1; y <= curY + 1; y++)
+        if (checkCoordinate(x, y)) {
+          openGameSquaresAroundZero(getPositionByCoordinates(x, y));
+        }
   }
 
+  public int getXByPosition(int position) {
+    return position % cols;
+  }
 
+  public int getYByPosition(int position) {
+    return position / cols;
+  }
+
+  public int getPositionByCoordinates(int X, int Y) {
+    return Y * cols + X;
+  }
+
+  public Result getResult() {
+    return result;
+  }
+
+  public boolean checkResult() {
+    ListIterator<GameSquare> iterator = getIterator();
+    Result result = Result.Win;
+    if (!iterator.hasNext()) {
+      return false;
+    }
+    while (iterator.hasNext()) {
+      GameSquare square = iterator.next();
+      if (square.getState() == GameSquare.SquareState.Exploded) {
+        result = Result.Lose;
+        break;
+      } else if (!square.hasMine() && square.getState() == GameSquare.SquareState.Untouched) {
+        result = Result.NotDefined;
+      }
+    }
+    if (result != Result.NotDefined) {
+      this.result = result;
+      return true;
+    }
+    return false;
+  }
 }

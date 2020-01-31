@@ -1,33 +1,44 @@
-package com.BombSweeper.model
+package com.BombSweeper.model;
 
-import com.BombSweeper.model.GameGrid;
-import com.BombSweeper.model.Model;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.*;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.TimerTask;
 
 public class GameModel {
   private Model<GameGrid> gameGridModel;
   private Model<Integer> timerModel;
   private Model<Integer> mineModel;
+  private Timer timer;
+  private Mode currentMode;
+  private List<Score> scoreList;
+  private String scoreFileName = "scores.txt";
+  private boolean isGameOn;
 
-  enum Mode {Novice, Advanced, Expert}
-
-  enum ModelType {
-    GameGrid, Timer, Mine
-  }
-
-  private boolean isGameOn = false;
-
+  public enum Mode {Novice, Advanced, Expert}
 
   public GameModel() {
-    // default
     gameGridModel = new Model<>(new GameGrid());
     timerModel = new Model<>(0);
     mineModel = new Model<>(0);
+    scoreList = new ArrayList<>();
+    isGameOn = false;
+    setScoreList();
+
+    timer = new Timer(1000, e -> {
+      timerModel.setProperty(timerModel.getProperty() + 1);
+    });
+
+    try {
+      File file = new File(scoreFileName);
+      file.createNewFile();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
   }
 
   public Model<GameGrid> getGameGridModel() {
@@ -42,105 +53,142 @@ public class GameModel {
     return mineModel;
   }
 
-  public List<String> getScore() {
-    // 1 - Define some data structure for a Score
-    // 2 - Use gson for serialization/de..
-    //
-//
-  }
-
-  private boolean gameOverCheck() {
-
-  }
-
-  /*public GameGrid getTable() {
-    return gameGridModel;
-  }*/
-
-
-  public class Reminder {
-    Timer timer;
-
-    public Reminder(int seconds) {
-      timer = new Timer(1000, new ActionListener() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          timerModel.setProperty();
-        }
-      });
-    }
-
-    class RemindTask extends TimerTask {
-      public void run() {
-        System.out.println("Time's up!");
-        timer.cancel(); //Terminate the timer thread
-      }
-    }
-
   public void startGame(Mode mode) {
-
+    currentMode = mode;
+    isGameOn = true;
     if (mode == Mode.Novice) {
       gameGridModel.getProperty().setup(9, 9, 10);
       this.mineModel.setProperty(10);
     } else if (mode == Mode.Advanced) {
       gameGridModel.getProperty().setup(16, 16, 40);
       this.mineModel.setProperty(40);
-    } else {
+    } else if (mode == Mode.Expert) {
       gameGridModel.getProperty().setup(16, 30, 99);
       this.mineModel.setProperty(99);
     }
-    timerModel.
-
+    gameGridModel.setProperty(gameGridModel.getProperty());
+    timerModel.setProperty(0);
+    timer.restart();
   }
 
-
-
-
-  //notifyObservers();
-  // setup grid - notify
-  // TODO:start clock
-
-
-}
-
-  private void notifySubscribers() {
-    gameGridModel.notifySubscribers();
-    timerModel.notifySubscribers();
-    mineModel.notifySubscribers();
+  public List<Score> getScores() {
+    return scoreList;
   }
 
-  public void exit() { // ending of programm
-
-  }
-
-  private void saveScore() {
-
-  }
-
-/*
-  @Override
-  public void subscribe(Observer observer) {
-    if (observer == null)
-      throw new NullPointerException("Null observer");
-    if (subscribers.contains(observer))
-      throw new IllegalArgumentException("Observer already subscribed");
-    subscribers.add(observer);
-  }
-
-  @Override
-  public void unsubscribe(Observer observer) {
-    if (observer == null)
-      throw new NullPointerException("Null observer");
-    if (!subscribers.remove(observer))
-      throw new IllegalArgumentException("Observer already subscribed");
-  }
-
-  @Override
-  public void notifyObservers() {
-    for (Observer observer : subscribers) {
-      observer.modelChanged(gameGrid);
+  private void setScoreList() {
+    Gson gson = new Gson();
+    Reader reader = null;
+    try {
+      reader = new InputStreamReader(new FileInputStream(scoreFileName));
+      Type foundListType = new TypeToken<ArrayList<Score>>() {
+      }.getType();
+      scoreList.clear();
+      List<Score> scores = gson.fromJson(reader, foundListType);
+      if (scores != null)
+        scoreList.addAll(scores);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (null != reader) {
+        try {
+          reader.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
     }
   }
 
-*/
+  private void saveScoreListToFile() {
+    Type foundListType = new TypeToken<ArrayList<Score>>() {
+    }.getType();
+    Gson gson = new Gson();
+    Writer writer = null;
+    try {
+      writer = new OutputStreamWriter(new FileOutputStream(scoreFileName));
+      writer.write(gson.toJson(scoreList, foundListType));
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      if (null != writer) {
+        try {
+          writer.close();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+  }
+
+  private void saveScore(Mode mode, int time) {
+    setScoreList();
+    Score newScore = new Score(time, mode);
+    for (Score score : scoreList) {
+      if (newScore.getMode() == score.getMode()) {
+        if (newScore.getTime() < score.getTime()) {
+          scoreList.remove(score);
+          scoreList.add(newScore);
+          saveScoreListToFile();
+        }
+        return;
+      }
+    }
+
+    scoreList.add(newScore);
+    saveScoreListToFile();
+  }
+
+
+  public void exit() {
+    timer.stop();
+    timer = null;
+  }
+
+  public void editGameSquare(int position, GameSquare.SquareState state) {
+    assert (position >= 0);
+    if (!isGameOn)
+      return;
+
+    GameGrid grid = gameGridModel.getProperty();
+    GameSquare square = grid.getSquare(position);
+
+    if (square.getState() == GameSquare.SquareState.Untouched) {
+      switch (state) {
+        case Flag -> {
+          if (mineModel.getProperty() > 0) {
+            square.setState(GameSquare.SquareState.Flag);
+            mineModel.setProperty(mineModel.getProperty() - 1);
+          }
+        }
+        case TouchedEmpty -> {
+          if (square.hasMine()) {
+            square.setState(GameSquare.SquareState.Exploded);
+          } else {
+            grid.openGameSquaresAroundZero(position);
+            square.setState(GameSquare.SquareState.TouchedEmpty);
+          }
+        }
+      }
+    } else if (square.getState() == GameSquare.SquareState.Flag) {
+      if (state == GameSquare.SquareState.Untouched) {
+        square.setState(GameSquare.SquareState.Untouched);
+        mineModel.setProperty(mineModel.getProperty() + 1);
+      }
+    }
+
+
+    if (gameGridModel.getProperty().checkResult()) {
+      gameGridModel.setProperty(gameGridModel.getProperty());
+      gameOver(gameGridModel.getProperty().getResult());
+    } else
+      gameGridModel.setProperty(gameGridModel.getProperty());
+  }
+
+  private void gameOver(GameGrid.Result result) {
+    timer.stop();
+    isGameOn = false;
+    if (result == GameGrid.Result.Win)
+      saveScore(currentMode, timerModel.getProperty());
+  }
+
 }
