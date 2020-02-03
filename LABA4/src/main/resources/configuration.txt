@@ -1,0 +1,10 @@
+FrameWarehouseCapacity=100
+EngineWarehouseCapacity=100
+AccessoryWarehouseCapacity=100
+MachineWarehouseCapacity=100
+AccessorySuppliers=5
+FrameSuppliers=5
+EngineSuppliers=5
+Workers=10
+Dealers=10
+LogSale=true

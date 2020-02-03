@@ -1,0 +1,13 @@
+package factory.model.machine;
+
+public class MachinePart {
+  private String id;
+
+  public MachinePart(String id) {
+    this.id = id;
+  }
+
+  public String getId() {
+    return id;
+  }
+}

@@ -1,7 +1,7 @@
-package factory;
+package factory.model.machine;
 
 public class MachineFrame extends MachinePart {
-  public MachineFrame(int id) {
+  public MachineFrame(String id) {
     super(id);
   }
 }

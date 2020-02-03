@@ -1,7 +1,11 @@
 package threadpool;
 
 public interface TaskListener {
-  void taskInterrupted(Task task);
+  default void taskInterrupted(Task task) {
+  }
+
   void taskFinished(Task task);
-  void taskStarted(Task task);
+
+  default void taskStarted(Task task) {
+  }
 }

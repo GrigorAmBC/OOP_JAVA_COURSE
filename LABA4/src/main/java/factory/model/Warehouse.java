@@ -1,19 +1,21 @@
-package factory;
+package factory.model;
 
+import factory.model.interfaces.WarehouseItemListener;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Warehouse<P> {
-  private final int capacity;// todo: to upper?
+  private final int capacity;
   private List<P> items;
+  private WarehouseItemListener itemListener = null;
 
   public Warehouse(int capacity) {
     assert capacity > 0;
     this.capacity = capacity;
+    items = new ArrayList<>();
   }
-
-  // todo: check this
 
   public synchronized void addItem(@NotNull P item) {
     if (items.size() < capacity) {
@@ -30,24 +32,28 @@ public class Warehouse<P> {
   }
 
   public synchronized P removeItem() {
-    if (items.isEmpty()) {
-      try {
-        wait();
-        return items.remove(0);//todo: is this correct? loops here are not permitted?
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
-    } else {
+    try {
+      while (items.isEmpty()) wait();
+      if (itemListener != null)
+        itemListener.itemRemoved();
       notify();
       return items.remove(0);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
     }
-
-    //todo:delete
-    System.out.println("Error in warehouse! with remove");
     return null;
   }
 
   public int getCapacity() {
     return capacity;
+  }
+
+  public void setItemListener(WarehouseItemListener itemListener) {
+    assert itemListener != null;
+    this.itemListener = itemListener;
+  }
+
+  public int getCurrentAmountOfItems() {
+    return items.size();
   }
 }

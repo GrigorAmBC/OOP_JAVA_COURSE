@@ -1,8 +1,7 @@
-package factory;
+package factory.model.machine;
 
 public class MachineEngine extends MachinePart {
-
-  public MachineEngine(int id) {
+  public MachineEngine(String id) {
     super(id);
   }
 }

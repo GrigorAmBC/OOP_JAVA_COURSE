@@ -29,8 +29,4 @@ public class ThreadPoolTask {
     if (listener != null)
       listener.taskInterrupted(task);
   }
-
-  public String getName() {
-    return task.getName();
-  }
 }
