@@ -1,4 +1,4 @@
-package com.BombSweeper.model;
+package ru.nsu.fit.grigor.bomb_sweeper.model;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;

@@ -1,7 +1,7 @@
-package com.BombSweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view;
 
-import com.BombSweeper.model.IModelSubscriber;
-import com.BombSweeper.model.Model;
+import ru.nsu.fit.grigor.bomb_sweeper.model.IModelSubscriber;
+import ru.nsu.fit.grigor.bomb_sweeper.model.Model;
 
 import javax.swing.*;
 import java.awt.*;

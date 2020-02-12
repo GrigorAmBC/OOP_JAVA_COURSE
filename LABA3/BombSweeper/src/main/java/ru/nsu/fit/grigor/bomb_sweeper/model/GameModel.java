@@ -1,4 +1,4 @@
-package com.BombSweeper.model;
+package ru.nsu.fit.grigor.bomb_sweeper.model;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -19,7 +19,17 @@ public class GameModel {
   private String scoreFileName = "scores.txt";
   private boolean isGameOn;
 
-  public enum Mode {Novice, Advanced, Expert}
+  public void doubleClick(GameSquare.SquareState state, int position) {
+    assert position >= 0;
+    if (gameGridModel.getProperty().openSquares(state, position)) {
+      if (gameGridModel.getProperty().checkResult()) {
+        gameGridModel.setProperty(gameGridModel.getProperty());
+        gameOver(gameGridModel.getProperty().getResult());
+      } else
+        gameGridModel.setProperty(gameGridModel.getProperty());    }
+  }
+
+  public enum Mode {Novice, Advanced, Expert, Custom}
 
   public GameModel() {
     gameGridModel = new Model<>(new GameGrid());
@@ -54,6 +64,8 @@ public class GameModel {
   }
 
   public void startGame(Mode mode) {
+    assert mode != Mode.Custom;
+
     currentMode = mode;
     isGameOn = true;
     if (mode == Mode.Novice) {
@@ -66,6 +78,26 @@ public class GameModel {
       gameGridModel.getProperty().setup(16, 30, 99);
       this.mineModel.setProperty(99);
     }
+
+    gameGridModel.setProperty(gameGridModel.getProperty());
+    timerModel.setProperty(0);
+    timer.restart();
+  }
+
+  public boolean checkCustomMode(int rows, int cols, int numberOfMines) {
+    return rows > 0 && cols > 0
+            && rows < 16 && cols < 30
+            && numberOfMines >= 0 && numberOfMines < rows*cols;
+  }
+
+  public void startCustomGame(int rows, int cols, int numberOfMines) {
+    assert checkCustomMode(rows, cols, numberOfMines);
+    currentMode = Mode.Custom;
+    isGameOn = true;
+
+    gameGridModel.getProperty().setup(rows,cols,numberOfMines);
+    this.mineModel.setProperty(numberOfMines);
+
     gameGridModel.setProperty(gameGridModel.getProperty());
     timerModel.setProperty(0);
     timer.restart();
@@ -76,10 +108,8 @@ public class GameModel {
   }
 
   private void setScoreList() {
-    Gson gson = new Gson();
-    Reader reader = null;
-    try {
-      reader = new InputStreamReader(new FileInputStream(scoreFileName));
+    Gson gson = new Gson();//todo
+    try (Reader reader = new InputStreamReader(new FileInputStream(scoreFileName))) {
       Type foundListType = new TypeToken<ArrayList<Score>>() {
       }.getType();
       scoreList.clear();
@@ -88,14 +118,6 @@ public class GameModel {
         scoreList.addAll(scores);
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (null != reader) {
-        try {
-          reader.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
   }
 
@@ -103,20 +125,10 @@ public class GameModel {
     Type foundListType = new TypeToken<ArrayList<Score>>() {
     }.getType();
     Gson gson = new Gson();
-    Writer writer = null;
-    try {
-      writer = new OutputStreamWriter(new FileOutputStream(scoreFileName));
+    try (Writer writer = new OutputStreamWriter(new FileOutputStream(scoreFileName))) {
       writer.write(gson.toJson(scoreList, foundListType));
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (null != writer) {
-        try {
-          writer.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
   }
 

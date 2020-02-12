@@ -1,4 +1,4 @@
-package com.BombSweeper.model;
+package ru.nsu.fit.grigor.bomb_sweeper.model;
 
 public class Score {
   private Integer time;

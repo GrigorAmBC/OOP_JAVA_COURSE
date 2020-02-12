@@ -1,12 +1,12 @@
-package com.BombSweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view;
 
-import com.BombSweeper.model.GameSquare.SquareState;
+import ru.nsu.fit.grigor.bomb_sweeper.model.GameSquare;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GameSquareView extends JButton {
-  private SquareState state;
+  private GameSquare.SquareState state;
   private int position;
   private final static ImageIcon iconFlag, iconMine, iconUntouched;
   public final static int SIZE = 30;
@@ -19,21 +19,21 @@ public class GameSquareView extends JButton {
 
 
   public GameSquareView() {
-    this.state = SquareState.Untouched;
+    this.state = GameSquare.SquareState.Untouched;
     setIcon(iconUntouched);
     setPreferredSize(new Dimension(SIZE, SIZE));
     setMargin(new Insets(1, 1, 1, 1));
   }
 
 
-  public SquareState getState() {
+  public GameSquare.SquareState getState() {
     return state;
   }
 
-  private void setState(SquareState state) {
+  private void setState(GameSquare.SquareState state) {
     this.state = state;
 
-    if (state == SquareState.TouchedEmpty) {
+    if (state == GameSquare.SquareState.TouchedEmpty) {
       setState(state, 0);
       return;
     }
@@ -46,12 +46,12 @@ public class GameSquareView extends JButton {
     });
   }
 
-  public void setState(SquareState state, int numberOfMines) {
-    if (state == SquareState.TouchedEmpty) {
+  public void setState(GameSquare.SquareState state, int numberOfMines) {
+    this.state= state;
+    if (state == GameSquare.SquareState.TouchedEmpty) {
       setBackground(Color.white);
       setIcon(null);
-      if (numberOfMines != 0)
-        setText(String.valueOf(numberOfMines));
+      setText(numberOfMines != 0 ? String.valueOf(numberOfMines) : "");
     } else
       setState(state);
   }

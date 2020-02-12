@@ -1,4 +1,4 @@
-package com.BombSweeper.model;
+package ru.nsu.fit.grigor.bomb_sweeper.model;
 
 import java.util.*;
 
@@ -45,6 +45,46 @@ public class GameGrid {
       gridList.add(new GameSquare(i, minePositions.get(i)));
     }
     setNumberOfMinesAroundSquares();
+  }
+
+  public boolean openSquares(GameSquare.SquareState state1, int position) {
+    if (getSquare(position).getState() != GameSquare.SquareState.TouchedEmpty)
+      return false;
+
+    int curX = getXByPosition(position), curY = getYByPosition(position);
+    int k = 0;
+    for (int x = curX - 1; x <= curX + 1; x++)
+      for (int y = curY - 1; y <= curY + 1; y++)
+        if (x != curX || y != curY)
+          if (checkCoordinate(x, y))
+            if (getSquare(x, y).getState() == GameSquare.SquareState.Flag) {
+              k++;
+            }
+
+    if (k != getSquare(position).getNumberOfMinesAround()) {
+      return false;
+    }
+    boolean changed = false;
+    for (int x = curX - 1; x <= curX + 1; x++)
+      for (int y = curY - 1; y <= curY + 1; y++) {
+        if (checkCoordinate(x, y)) {
+          GameSquare square = getSquare(x, y);
+          GameSquare.SquareState state = square.getState();
+          if ((x != curX || y != curY) && state != GameSquare.SquareState.Flag) {
+            changed = true;
+            if (square.hasMine()) {
+              square.setState(GameSquare.SquareState.Exploded);
+            } else {
+              if (square.getNumberOfMinesAround() == 0)
+                openGameSquaresAroundZero(square.getPosition());
+              else
+                square.setState(GameSquare.SquareState.TouchedEmpty);
+            }
+          }
+        }
+      }
+
+    return changed;
   }
 
   private void setNumberOfMinesAroundSquares() {

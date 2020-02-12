@@ -1,12 +1,14 @@
-package com.BombSweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view;
 
-import com.BombSweeper.model.*;
+import ru.nsu.fit.grigor.bomb_sweeper.model.*;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.List;
 
-import static com.BombSweeper.model.GameModel.Mode.*;
+import static ru.nsu.fit.grigor.bomb_sweeper.model.GameModel.Mode.*;
 
 public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
   GameModel gameModel = new GameModel();
@@ -103,7 +105,7 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
   }
 
   private void requestGameMode() {
-    GameModel.Mode[] options = {Novice, Advanced, Expert};
+    GameModel.Mode[] options = {Novice, Advanced, Expert, Custom};
 
     GameModel.Mode mode;
     int x = JOptionPane.showOptionDialog(null, "Choose the game mode, please",
@@ -113,9 +115,39 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
       mode = switch (x) {
         case 1 -> Advanced;
         case 2 -> Expert;
+        case 0 -> Novice;
+        case 3 -> Custom;
         default -> Novice;
       };
-      gameModel.startGame(mode);
+
+      if (mode == Custom) {
+        JPanel myPanel = new JPanel();
+        JTextField rowField = new HintTextField("rows      ");
+        JTextField colField = new HintTextField("cols      ");
+        JTextField mineNumberField = new HintTextField("mine number");
+
+        myPanel.add(rowField);
+        myPanel.add(colField);
+        myPanel.add(mineNumberField);
+        int rows, cols, numberOfMines;
+      while (true) {
+        JOptionPane.showMessageDialog(null, myPanel);
+        try {
+          rows = Integer.parseInt(rowField.getText());
+          cols = Integer.parseInt(colField.getText());
+          numberOfMines = Integer.parseInt(mineNumberField.getText());
+        } catch (NumberFormatException e) {
+          JOptionPane.showMessageDialog(null, "Wrong numbers.");
+          continue;
+        }
+
+        if (gameModel.checkCustomMode(rows, cols, numberOfMines)) {
+          gameModel.startCustomGame(rows, cols, numberOfMines);
+          break;
+        }
+      }
+      } else
+        gameModel.startGame(mode);
     }
   }
 
@@ -124,6 +156,40 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
     switch (model.getProperty().getResult()) {
       case Lose -> JOptionPane.showMessageDialog(this, "You fired a bomb! Game over.", "Game over", JOptionPane.INFORMATION_MESSAGE);
       case Win -> JOptionPane.showMessageDialog(this, "You won! Game over.", "Game over", JOptionPane.INFORMATION_MESSAGE);
+    }
+  }
+
+  private static class HintTextField extends JTextField implements FocusListener {
+
+    private final String hint;
+    private boolean showingHint;
+
+    public HintTextField(final String hint) {
+      super(hint);
+      this.hint = hint;
+      this.showingHint = true;
+      super.addFocusListener(this);
+    }
+
+    @Override
+    public void focusGained(FocusEvent e) {
+      if (this.getText().isEmpty()) {
+        super.setText("");
+        showingHint = false;
+      }
+    }
+
+    @Override
+    public void focusLost(FocusEvent e) {
+      if (this.getText().isEmpty()) {
+        super.setText(hint);
+        showingHint = true;
+      }
+    }
+
+    @Override
+    public String getText() {
+      return showingHint ? "" : super.getText();
     }
   }
 }

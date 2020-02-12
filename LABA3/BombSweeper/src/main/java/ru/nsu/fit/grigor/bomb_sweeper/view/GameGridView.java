@@ -1,7 +1,6 @@
-package com.BombSweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view;
 
-import com.BombSweeper.model.*;
-import com.BombSweeper.model.GameSquare.SquareState;
+import ru.nsu.fit.grigor.bomb_sweeper.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -36,16 +35,21 @@ public class GameGridView extends JPanel implements IModelSubscriber<GameGrid> {
         @Override
         public void mousePressed(MouseEvent e) {
           super.mousePressed(e);
-          SquareState state = squareView.getState();
+          GameSquare.SquareState state = squareView.getState();
+          if (e.getClickCount() == 2) {
+            if (state == GameSquare.SquareState.TouchedEmpty) {
+              model.doubleClick(state, squareView.getPosition());
+            }
+          }
           if (SwingUtilities.isRightMouseButton(e)) {
-            if (state == SquareState.Flag) {
-              model.editGameSquare(squareView.getPosition(), SquareState.Untouched);
-            } else if (state == SquareState.Untouched) {
-              model.editGameSquare(squareView.getPosition(), SquareState.Flag);
+            if (state == GameSquare.SquareState.Flag) {
+              model.editGameSquare(squareView.getPosition(), GameSquare.SquareState.Untouched);
+            } else if (state == GameSquare.SquareState.Untouched) {
+              model.editGameSquare(squareView.getPosition(), GameSquare.SquareState.Flag);
             }
           } else if (SwingUtilities.isLeftMouseButton(e)) {
-            if (state == SquareState.Untouched) {
-              model.editGameSquare(squareView.getPosition(), SquareState.TouchedEmpty);
+            if (state == GameSquare.SquareState.Untouched) {
+              model.editGameSquare(squareView.getPosition(), GameSquare.SquareState.TouchedEmpty);
             }
           }
         }
@@ -83,7 +87,7 @@ public class GameGridView extends JPanel implements IModelSubscriber<GameGrid> {
       GameSquareView squareView = squareViews.get(i);
 
       if (square.hasMine()) {
-        squareView.setState(SquareState.Exploded, 0);
+        squareView.setState(GameSquare.SquareState.Exploded, 0);
       }
 
     }
