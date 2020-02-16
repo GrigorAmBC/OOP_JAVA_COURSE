@@ -5,7 +5,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Model<P> {
   private P property;
-  private Collection<IModelSubscriber<P>> subscribers = new CopyOnWriteArrayList<>();
+  private Collection<ModelSubscriber<P>> subscribers = new CopyOnWriteArrayList<>();
 
   public Model(P property) {
     if (property == null)
@@ -25,17 +25,17 @@ public class Model<P> {
   }
 
   protected void notifySubscribers() {
-    for (final IModelSubscriber<P> subscriber : subscribers) {
+    for (final ModelSubscriber<P> subscriber : subscribers) {
       subscriber.modelChanged(this);
     }
   }
 
-  private void notifySubscriber(IModelSubscriber<P> subscriber) {
+  private void notifySubscriber(ModelSubscriber<P> subscriber) {
     assert subscriber != null;
     subscriber.modelChanged(this);
   }
 
-  public void subscribe(IModelSubscriber<P> subscriber) {
+  public void subscribe(ModelSubscriber<P> subscriber) {
     if (subscriber == null)
       throw new NullPointerException("Empty parameter");
     if (subscribers.contains(subscriber)) {
@@ -46,7 +46,7 @@ public class Model<P> {
     notifySubscriber(subscriber);
   }
 
-  public void unsubscribe(IModelSubscriber<P> subscriber) {
+  public void unsubscribe(ModelSubscriber<P> subscriber) {
     if (subscriber == null)
       throw new NullPointerException("Empty parameter");
     if (!subscribers.contains(subscriber))

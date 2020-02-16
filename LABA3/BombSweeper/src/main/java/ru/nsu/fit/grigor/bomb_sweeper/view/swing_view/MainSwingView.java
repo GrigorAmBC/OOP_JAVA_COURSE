@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.*;
 
@@ -10,12 +10,12 @@ import java.util.List;
 
 import static ru.nsu.fit.grigor.bomb_sweeper.model.GameModel.Mode.*;
 
-public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
+public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
   GameModel gameModel = new GameModel();
   GameGridView gridView = new GameGridView();
   JPanel gamePanel = new JPanel();
 
-  public MainView() {
+  public MainSwingView() {
     super("MineSweeper");
     setSize(1280, 720);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -54,8 +54,7 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
       dispose();
     });
     aboutMenuItem.addActionListener(e -> {
-      JOptionPane.showMessageDialog(this, "This game was originally" +
-              " created for African children from Bangalour.");
+      JOptionPane.showMessageDialog(this, gameModel.getAbout());
     });
     scoreMenuItem.addActionListener(e -> {
       StringBuilder builder = new StringBuilder();
@@ -80,6 +79,12 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
     gameModel.getMineModel().subscribe(mineTextArea);
     gamePanel.add(mineTextArea, gc);
 
+    // restart
+    JButton newGameButton = new JButton("again");
+    gc.gridx = 0;
+    gc.gridy = 0;
+    newGameButton.addActionListener(e -> requestGameMode());
+    gamePanel.add(newGameButton, gc);
 
     // timer
     gc.gridx = 0;
@@ -115,7 +120,6 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
       mode = switch (x) {
         case 1 -> Advanced;
         case 2 -> Expert;
-        case 0 -> Novice;
         case 3 -> Custom;
         default -> Novice;
       };
@@ -129,8 +133,7 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
         myPanel.add(rowField);
         myPanel.add(colField);
         myPanel.add(mineNumberField);
-        int rows, cols, numberOfMines;
-      while (true) {
+        int rows = 0, cols = 0, numberOfMines = 0;
         JOptionPane.showMessageDialog(null, myPanel);
         try {
           rows = Integer.parseInt(rowField.getText());
@@ -138,14 +141,10 @@ public class MainView extends JFrame implements IModelSubscriber<GameGrid> {
           numberOfMines = Integer.parseInt(mineNumberField.getText());
         } catch (NumberFormatException e) {
           JOptionPane.showMessageDialog(null, "Wrong numbers.");
-          continue;
         }
 
-        if (gameModel.checkCustomMode(rows, cols, numberOfMines)) {
+        if (gameModel.checkCustomMode(rows, cols, numberOfMines))
           gameModel.startCustomGame(rows, cols, numberOfMines);
-          break;
-        }
-      }
       } else
         gameModel.startGame(mode);
     }

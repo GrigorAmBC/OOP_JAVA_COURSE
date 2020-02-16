@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameSquare;
 

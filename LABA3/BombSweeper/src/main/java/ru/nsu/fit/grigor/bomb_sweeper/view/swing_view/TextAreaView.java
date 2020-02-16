@@ -1,12 +1,12 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
 
-import ru.nsu.fit.grigor.bomb_sweeper.model.IModelSubscriber;
+import ru.nsu.fit.grigor.bomb_sweeper.model.ModelSubscriber;
 import ru.nsu.fit.grigor.bomb_sweeper.model.Model;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class TextAreaView extends JTextArea implements IModelSubscriber<Integer> {
+public class TextAreaView extends JTextArea implements ModelSubscriber<Integer> {
 
   public TextAreaView() {
     setEnabled(false);

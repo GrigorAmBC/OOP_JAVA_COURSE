@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.*;
 
@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-public class GameGridView extends JPanel implements IModelSubscriber<GameGrid> {
+public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
   private int rows;
   private int cols;
   private List<GameSquareView> squareViews;
@@ -72,24 +72,6 @@ public class GameGridView extends JPanel implements IModelSubscriber<GameGrid> {
       GameSquare square = iterator.next();
       GameSquareView squareView = squareViews.get(i);
       squareView.setState(square.getState(), square.getNumberOfMinesAround());
-    }
-
-    if (gridData.getResult() == GameGrid.Result.Lose) {
-      showMines(gridData);
-    }
-  }
-
-  private void showMines(GameGrid gameGrid) {
-    ListIterator<GameSquare> iterator = gameGrid.getIterator();
-
-    for (int i = 0; iterator.hasNext(); i++) {
-      GameSquare square = iterator.next();
-      GameSquareView squareView = squareViews.get(i);
-
-      if (square.hasMine()) {
-        squareView.setState(GameSquare.SquareState.Exploded, 0);
-      }
-
     }
   }
 

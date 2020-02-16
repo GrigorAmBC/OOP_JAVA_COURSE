@@ -1,12 +1,6 @@
 package ru.nsu.fit.grigor.bomb_sweeper.model;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-
 import javax.swing.*;
-import java.io.*;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class GameModel {
@@ -15,9 +9,13 @@ public class GameModel {
   private Model<Integer> mineModel;
   private Timer timer;
   private Mode currentMode;
-  private List<Score> scoreList;
-  private String scoreFileName = "scores.txt";
+
+  public boolean isGameOn() {
+    return isGameOn;
+  }
+
   private boolean isGameOn;
+  private ScoreRepository scoreRepository = new ScoreSavior();
 
   public void doubleClick(GameSquare.SquareState state, int position) {
     assert position >= 0;
@@ -26,29 +24,27 @@ public class GameModel {
         gameGridModel.setProperty(gameGridModel.getProperty());
         gameOver(gameGridModel.getProperty().getResult());
       } else
-        gameGridModel.setProperty(gameGridModel.getProperty());    }
+        gameGridModel.setProperty(gameGridModel.getProperty());
+    }
   }
 
-  public enum Mode {Novice, Advanced, Expert, Custom}
+  public String getAbout() {
+    return "This game was originally created for African children from Bangalour.";
+  }
+
+  public enum Mode {
+    Novice, Advanced(), Expert, Custom;
+  }
 
   public GameModel() {
     gameGridModel = new Model<>(new GameGrid());
     timerModel = new Model<>(0);
     mineModel = new Model<>(0);
-    scoreList = new ArrayList<>();
     isGameOn = false;
 
     timer = new Timer(1000, e -> {
       timerModel.setProperty(timerModel.getProperty() + 1);
     });
-
-    try {
-      File file = new File(scoreFileName);
-      file.createNewFile();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    setScoreList();
   }
 
   public Model<GameGrid> getGameGridModel() {
@@ -87,7 +83,7 @@ public class GameModel {
   public boolean checkCustomMode(int rows, int cols, int numberOfMines) {
     return rows > 0 && cols > 0
             && rows < 16 && cols < 30
-            && numberOfMines >= 0 && numberOfMines < rows*cols;
+            && numberOfMines >= 0 && numberOfMines < rows * cols;
   }
 
   public void startCustomGame(int rows, int cols, int numberOfMines) {
@@ -95,7 +91,7 @@ public class GameModel {
     currentMode = Mode.Custom;
     isGameOn = true;
 
-    gameGridModel.getProperty().setup(rows,cols,numberOfMines);
+    gameGridModel.getProperty().setup(rows, cols, numberOfMines);
     this.mineModel.setProperty(numberOfMines);
 
     gameGridModel.setProperty(gameGridModel.getProperty());
@@ -104,52 +100,8 @@ public class GameModel {
   }
 
   public List<Score> getScores() {
-    return scoreList;
+    return scoreRepository.getScores();
   }
-
-  private void setScoreList() {
-    Gson gson = new Gson();//todo
-    try (Reader reader = new InputStreamReader(new FileInputStream(scoreFileName))) {
-      Type foundListType = new TypeToken<ArrayList<Score>>() {
-      }.getType();
-      scoreList.clear();
-      List<Score> scores = gson.fromJson(reader, foundListType);
-      if (scores != null)
-        scoreList.addAll(scores);
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void saveScoreListToFile() {
-    Type foundListType = new TypeToken<ArrayList<Score>>() {
-    }.getType();
-    Gson gson = new Gson();
-    try (Writer writer = new OutputStreamWriter(new FileOutputStream(scoreFileName))) {
-      writer.write(gson.toJson(scoreList, foundListType));
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-  }
-
-  private void saveScore(Mode mode, int time) {
-    setScoreList();
-    Score newScore = new Score(time, mode);
-    for (Score score : scoreList) {
-      if (newScore.getMode() == score.getMode()) {
-        if (newScore.getTime() < score.getTime()) {
-          scoreList.remove(score);
-          scoreList.add(newScore);
-          saveScoreListToFile();
-        }
-        return;
-      }
-    }
-
-    scoreList.add(newScore);
-    saveScoreListToFile();
-  }
-
 
   public void exit() {
     timer.stop();
@@ -182,25 +134,32 @@ public class GameModel {
         }
       }
     } else if (square.getState() == GameSquare.SquareState.Flag) {
-      if (state == GameSquare.SquareState.Untouched) {
+      if (state == GameSquare.SquareState.Untouched || state == GameSquare.SquareState.Flag) {
         square.setState(GameSquare.SquareState.Untouched);
         mineModel.setProperty(mineModel.getProperty() + 1);
       }
     }
 
-
-    if (gameGridModel.getProperty().checkResult()) {
-      gameGridModel.setProperty(gameGridModel.getProperty());
-      gameOver(gameGridModel.getProperty().getResult());
-    } else
-      gameGridModel.setProperty(gameGridModel.getProperty());
+    gameGridModel.getProperty().checkResult();
+    switch (gameGridModel.getProperty().getResult()) {
+      case Win -> {
+        gameOver(gameGridModel.getProperty().getResult());
+        gameGridModel.setProperty(gameGridModel.getProperty());
+      }
+      case Lose -> {
+        gameOver(gameGridModel.getProperty().getResult());
+        gameGridModel.getProperty().openMines();
+        gameGridModel.setProperty(gameGridModel.getProperty());
+      }
+      default -> gameGridModel.setProperty(gameGridModel.getProperty());
+    }
   }
 
   private void gameOver(GameGrid.Result result) {
     timer.stop();
     isGameOn = false;
     if (result == GameGrid.Result.Win)
-      saveScore(currentMode, timerModel.getProperty());
+      scoreRepository.addScore(new Score(timerModel.getProperty(), currentMode));
   }
 
 }

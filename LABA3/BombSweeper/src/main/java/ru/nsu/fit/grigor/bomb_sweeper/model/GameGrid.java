@@ -1,6 +1,9 @@
 package ru.nsu.fit.grigor.bomb_sweeper.model;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 
 public class GameGrid {
   private List<GameSquare> gridList = new ArrayList<>();
@@ -25,6 +28,10 @@ public class GameGrid {
     this.rows = 0;
     this.cols = 0;
     this.numberOfMines = 0;
+  }
+
+  public List<GameSquare> getGridList() {
+    return gridList;
   }
 
   public void setup(int rows, int columns, int numberOfMines) {
@@ -104,7 +111,7 @@ public class GameGrid {
     return gridList.get(getPositionByCoordinates(X, Y));
   }
 
-  private boolean checkCoordinate(int x, int y) {
+  public boolean checkCoordinate(int x, int y) {
     return x >= 0 && x < cols && y >= 0 && y < rows;
   }
 
@@ -151,6 +158,12 @@ public class GameGrid {
 
   public Result getResult() {
     return result;
+  }
+
+  public void openMines() {
+    for (GameSquare square: gridList)
+      if (square.hasMine())
+        square.setState(GameSquare.SquareState.Exploded);
   }
 
   public boolean checkResult() {

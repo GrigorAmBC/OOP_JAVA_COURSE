@@ -1,11 +1,11 @@
 package ru.nsu.fit.grigor.bomb_sweeper;
 
-import ru.nsu.fit.grigor.bomb_sweeper.view.MainView;
+import ru.nsu.fit.grigor.bomb_sweeper.view.swing_view.MainSwingView;
 
 public class Main {
   public static void main(String[] args) {
-    MainView mainView = new MainView();
+    MainSwingView mainView = new MainSwingView();
 // console view
-    // file reading from gamemodel
+//    MainConsole consoleView = new MainConsole();
   }
 }
