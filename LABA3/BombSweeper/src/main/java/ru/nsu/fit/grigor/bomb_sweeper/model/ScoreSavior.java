@@ -2,6 +2,8 @@ package ru.nsu.fit.grigor.bomb_sweeper.model;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.grigor.bomb_sweeper.view.MessageViewer;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -11,34 +13,29 @@ import java.util.List;
 public class ScoreSavior implements ScoreRepository {
   private List<Score> scoreList;
   private String scoreFileName = "scores.txt";
+  private MessageViewer messageViewer;
 
-  public ScoreSavior() {
+  public ScoreSavior(@NotNull MessageViewer messageViewer) {
+    this.messageViewer = messageViewer;
     scoreList = new ArrayList<>();
-    try {
-      File file = new File(scoreFileName);
-      file.createNewFile();
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
     setScoreList();
   }
 
   @Override
   public void addScore(Score newScore) {
-      setScoreList();
-      for (Score score : scoreList) {
-        if (newScore.getMode() == score.getMode()) {
-          if (newScore.getTime() < score.getTime()) {
-            scoreList.remove(score);
-            scoreList.add(newScore);
-            saveScoreListToFile();
-          }
-          return;
+    setScoreList();
+    for (Score score : scoreList) {
+      if (newScore.getMode() == score.getMode()) {
+        if (newScore.getTime() < score.getTime()) {
+          scoreList.set(scoreList.indexOf(score), newScore);
+          saveScoreListToFile();
         }
+        return;
       }
+    }
 
-      scoreList.add(newScore);
-      saveScoreListToFile();
+    scoreList.add(newScore);
+    saveScoreListToFile();
   }
 
 
@@ -54,7 +51,7 @@ public class ScoreSavior implements ScoreRepository {
     try (Writer writer = new OutputStreamWriter(new FileOutputStream(scoreFileName))) {
       writer.write(gson.toJson(scoreList, foundListType));
     } catch (IOException e) {
-      e.printStackTrace();
+      messageViewer.showMessage("Cannot save scores. ");
     }
   }
 
@@ -68,9 +65,7 @@ public class ScoreSavior implements ScoreRepository {
       if (scores != null)
         scoreList.addAll(scores);
     } catch (IOException e) {
-      e.printStackTrace();
+      messageViewer.showMessage("Cannot set up score list. ");
     }
   }
-
-
 }

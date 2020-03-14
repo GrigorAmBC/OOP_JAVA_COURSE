@@ -1,25 +1,38 @@
 package ru.nsu.fit.grigor.bomb_sweeper.model;
 
+import org.jetbrains.annotations.NotNull;
+import ru.nsu.fit.grigor.bomb_sweeper.view.MessageViewer;
+
 import javax.swing.*;
 import java.util.List;
 
 public class GameModel {
+  public enum Mode {
+    Novice, Advanced(), Expert, Custom
+  }
   private Model<GameGrid> gameGridModel;
   private Model<Integer> timerModel;
   private Model<Integer> mineModel;
   private Timer timer;
   private Mode currentMode;
+  private MessageViewer messageViewer = null;
+  private boolean gameOn;
+  private ScoreRepository scoreRepository;
 
-  public boolean isGameOn() {
-    return isGameOn;
+  public GameModel(@NotNull MessageViewer messageViewer) {
+    this.scoreRepository = new ScoreSavior(messageViewer);
+    gameGridModel = new Model<>(new GameGrid());
+    timerModel = new Model<>(0);
+    mineModel = new Model<>(0);
+    gameOn = false;
+
+    timer = new Timer(1000, e -> timerModel.setProperty(timerModel.getProperty() + 1));
   }
 
-  private boolean isGameOn;
-  private ScoreRepository scoreRepository = new ScoreSavior();
-
   public void doubleClick(GameSquare.SquareState state, int position) {
-    assert position >= 0;
-    if (gameGridModel.getProperty().openSquares(state, position)) {
+    if (!gameOn)
+      return;
+    if (gameGridModel.getProperty().openSquares(position)) {
       if (gameGridModel.getProperty().checkResult()) {
         gameGridModel.setProperty(gameGridModel.getProperty());
         gameOver(gameGridModel.getProperty().getResult());
@@ -32,20 +45,6 @@ public class GameModel {
     return "This game was originally created for African children from Bangalour.";
   }
 
-  public enum Mode {
-    Novice, Advanced(), Expert, Custom;
-  }
-
-  public GameModel() {
-    gameGridModel = new Model<>(new GameGrid());
-    timerModel = new Model<>(0);
-    mineModel = new Model<>(0);
-    isGameOn = false;
-
-    timer = new Timer(1000, e -> {
-      timerModel.setProperty(timerModel.getProperty() + 1);
-    });
-  }
 
   public Model<GameGrid> getGameGridModel() {
     return gameGridModel;
@@ -60,10 +59,8 @@ public class GameModel {
   }
 
   public void startGame(Mode mode) {
-    assert mode != Mode.Custom;
-
     currentMode = mode;
-    isGameOn = true;
+    gameOn = true;
     if (mode == Mode.Novice) {
       gameGridModel.getProperty().setup(9, 9, 10);
       this.mineModel.setProperty(10);
@@ -73,6 +70,8 @@ public class GameModel {
     } else if (mode == Mode.Expert) {
       gameGridModel.getProperty().setup(16, 30, 99);
       this.mineModel.setProperty(99);
+    } else  {
+      throw new IllegalArgumentException("Wrong game mode. Cannot operate.");
     }
 
     gameGridModel.setProperty(gameGridModel.getProperty());
@@ -80,16 +79,14 @@ public class GameModel {
     timer.restart();
   }
 
-  public boolean checkCustomMode(int rows, int cols, int numberOfMines) {
-    return rows > 0 && cols > 0
-            && rows < 16 && cols < 30
-            && numberOfMines >= 0 && numberOfMines < rows * cols;
-  }
-
   public void startCustomGame(int rows, int cols, int numberOfMines) {
-    assert checkCustomMode(rows, cols, numberOfMines);
+    if (!GameGrid.checkGridParameters(rows, cols, numberOfMines)) {
+      messageViewer.showMessage("Custom mode parameters are wrong!");
+      return;
+    }
+
     currentMode = Mode.Custom;
-    isGameOn = true;
+    gameOn = true;
 
     gameGridModel.getProperty().setup(rows, cols, numberOfMines);
     this.mineModel.setProperty(numberOfMines);
@@ -109,8 +106,7 @@ public class GameModel {
   }
 
   public void editGameSquare(int position, GameSquare.SquareState state) {
-    assert (position >= 0);
-    if (!isGameOn)
+    if (!gameOn)
       return;
 
     GameGrid grid = gameGridModel.getProperty();
@@ -157,9 +153,8 @@ public class GameModel {
 
   private void gameOver(GameGrid.Result result) {
     timer.stop();
-    isGameOn = false;
+    gameOn = false;
     if (result == GameGrid.Result.Win)
       scoreRepository.addScore(new Score(timerModel.getProperty(), currentMode));
   }
-
 }

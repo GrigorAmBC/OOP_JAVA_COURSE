@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.*;
 
@@ -9,6 +9,7 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.logging.Logger;
 
 public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
   private int rows;
@@ -67,11 +68,16 @@ public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
       setupGrid(gridData.getRowCount(), gridData.getColumnCount());
     }
 
-    ListIterator<GameSquare> iterator = gridData.getIterator();
-    for (int i = 0; iterator.hasNext(); i++) {
-      GameSquare square = iterator.next();
-      GameSquareView squareView = squareViews.get(i);
+    ListIterator<GameSquare> dataIterator = gridData.getIterator();
+    ListIterator<GameSquareView> viewIterator = squareViews.listIterator();
+    while (dataIterator.hasNext() && viewIterator.hasNext()) {
+      GameSquare square = dataIterator.next();
+      GameSquareView squareView = viewIterator.next();
       squareView.setState(square.getState(), square.getNumberOfMinesAround());
+    }
+
+    if (dataIterator.hasNext() || viewIterator.hasNext()) {//todo: wtf?
+      Logger.getGlobal().info("Mismatch between number of swing squares and data squares.");
     }
   }
 

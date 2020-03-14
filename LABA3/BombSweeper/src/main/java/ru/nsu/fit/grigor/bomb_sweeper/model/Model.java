@@ -1,5 +1,7 @@
 package ru.nsu.fit.grigor.bomb_sweeper.model;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -7,9 +9,7 @@ public class Model<P> {
   private P property;
   private Collection<ModelSubscriber<P>> subscribers = new CopyOnWriteArrayList<>();
 
-  public Model(P property) {
-    if (property == null)
-      throw new NullPointerException("Empty parameter");
+  public Model(@NotNull P property) {
     this.property = property;
   }
 
@@ -30,14 +30,11 @@ public class Model<P> {
     }
   }
 
-  private void notifySubscriber(ModelSubscriber<P> subscriber) {
-    assert subscriber != null;
+  private void notifySubscriber(@NotNull ModelSubscriber<P> subscriber) {
     subscriber.modelChanged(this);
   }
 
-  public void subscribe(ModelSubscriber<P> subscriber) {
-    if (subscriber == null)
-      throw new NullPointerException("Empty parameter");
+  public void subscribe(@NotNull ModelSubscriber<P> subscriber) {
     if (subscribers.contains(subscriber)) {
       throw new IllegalArgumentException("Repeated subscription: " + subscriber);
     }
@@ -46,9 +43,7 @@ public class Model<P> {
     notifySubscriber(subscriber);
   }
 
-  public void unsubscribe(ModelSubscriber<P> subscriber) {
-    if (subscriber == null)
-      throw new NullPointerException("Empty parameter");
+  public void unsubscribe(@NotNull ModelSubscriber<P> subscriber) {
     if (!subscribers.contains(subscriber))
       throw new IllegalArgumentException("Unknown subscriber: " +
               subscriber);

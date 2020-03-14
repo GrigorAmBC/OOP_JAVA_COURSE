@@ -1,9 +1,11 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.*;
+import ru.nsu.fit.grigor.bomb_sweeper.view.MessageViewer;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.List;
@@ -11,14 +13,16 @@ import java.util.List;
 import static ru.nsu.fit.grigor.bomb_sweeper.model.GameModel.Mode.*;
 
 public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
-  GameModel gameModel = new GameModel();
-  GameGridView gridView = new GameGridView();
-  JPanel gamePanel = new JPanel();
+  private GameModel gameModel;
+  private MessageViewer messageViewer = new SwingMessageViewer();
 
   public MainSwingView() {
     super("MineSweeper");
+    gameModel = new GameModel(messageViewer);
+
     setSize(1280, 720);
     setDefaultCloseOperation(EXIT_ON_CLOSE);
+    JPanel gamePanel = new JPanel();
     gamePanel.setLayout(new GridBagLayout());
     GridBagConstraints gc = new GridBagConstraints();
 
@@ -53,23 +57,19 @@ public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
       gameModel.exit();
       dispose();
     });
-    aboutMenuItem.addActionListener(e -> {
-      JOptionPane.showMessageDialog(this, gameModel.getAbout());
-    });
+    aboutMenuItem.addActionListener(e -> JOptionPane.showMessageDialog(this, gameModel.getAbout()));
     scoreMenuItem.addActionListener(e -> {
       StringBuilder builder = new StringBuilder();
       List<Score> scores = gameModel.getScores();
       for (Score score : scores) {
         builder.append(score.getMode().toString()).append(": ").append(score.getTime()).append("\n");
       }
-      if (scores.size() == 0)
+      if (scores.isEmpty())
         builder.append("No scores yet! You may be the first.");
       JOptionPane.showMessageDialog(this, builder.toString(), "High scores", JOptionPane.INFORMATION_MESSAGE);
     });
 
-    newGameMenuItem.addActionListener(e -> {
-      requestGameMode();
-    });
+    newGameMenuItem.addActionListener(this::actionPerformed);
 
     // mines
     gc.gridx = 0;
@@ -98,6 +98,7 @@ public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
     // grid
     gc.gridx = 0;
     gc.gridy = 2;
+    GameGridView gridView = new GameGridView();
     gameModel.getGameGridModel().subscribe(gridView);
     gameModel.getGameGridModel().subscribe(this);
     gridView.setControllerModel(gameModel);
@@ -143,8 +144,7 @@ public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
           JOptionPane.showMessageDialog(null, "Wrong numbers.");
         }
 
-        if (gameModel.checkCustomMode(rows, cols, numberOfMines))
-          gameModel.startCustomGame(rows, cols, numberOfMines);
+        gameModel.startCustomGame(rows, cols, numberOfMines);
       } else
         gameModel.startGame(mode);
     }
@@ -155,7 +155,12 @@ public class MainSwingView extends JFrame implements ModelSubscriber<GameGrid> {
     switch (model.getProperty().getResult()) {
       case Lose -> JOptionPane.showMessageDialog(this, "You fired a bomb! Game over.", "Game over", JOptionPane.INFORMATION_MESSAGE);
       case Win -> JOptionPane.showMessageDialog(this, "You won! Game over.", "Game over", JOptionPane.INFORMATION_MESSAGE);
+      default -> {}
     }
+  }
+
+  private void actionPerformed(ActionEvent e) {
+    requestGameMode();
   }
 
   private static class HintTextField extends JTextField implements FocusListener {

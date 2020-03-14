@@ -12,7 +12,6 @@ public class GameSquare {
   }
 
   public GameSquare(int position, boolean isBomb) {
-    assert position >= 0;
     this.position = position;
     bomb = isBomb;
   }
@@ -27,7 +26,7 @@ public class GameSquare {
 
   public void setNumberOfMinesAround(int number) {
     if (number < 0)
-      throw new IllegalArgumentException("Negative number of mins around a square");
+      throw new IllegalArgumentException("Negative number of mines around a square");
     numberOfMinsAround = number;
   }
 

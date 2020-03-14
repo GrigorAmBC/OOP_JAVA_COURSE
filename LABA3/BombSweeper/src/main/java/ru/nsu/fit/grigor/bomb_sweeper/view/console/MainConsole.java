@@ -1,9 +1,10 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view.console_view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.console;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameGrid;
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameModel;
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameSquare;
 import ru.nsu.fit.grigor.bomb_sweeper.model.Score;
+import ru.nsu.fit.grigor.bomb_sweeper.view.MessageViewer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,10 +14,15 @@ import java.util.List;
 import static ru.nsu.fit.grigor.bomb_sweeper.model.GameModel.Mode.*;
 
 public class MainConsole {
-  private GameModel gameModel = new GameModel();
+  public enum MenuItem {Exit, About, Start, Scores}
+
+  private GameModel gameModel;
   private ConsoleGrid consoleGrid = new ConsoleGrid();
+  private MessageViewer messageViewer = new ConsoleMessageViewer();
+
 
   public MainConsole() {
+    gameModel = new GameModel(messageViewer);
     startGame();
   }
 
@@ -100,21 +106,6 @@ public class MainConsole {
       } else {
         gameModel.editGameSquare(getPosition(row, col), GameSquare.SquareState.TouchedEmpty);
       }
-
-
-
-     /* if (SwingUtilities.isRightMouseButton(e)) {
-        if (state == GameSquare.SquareState.Flag) {
-          gameModel.editGameSquare(squareView.getPosition(), GameSquare.SquareState.Untouched);
-        } else if (state == GameSquare.SquareState.Untouched) {
-          model.editGameSquare(squareView.getPosition(), GameSquare.SquareState.Flag);
-        }
-      } else if (SwingUtilities.isLeftMouseButton(e)) {
-        if (state == GameSquare.SquareState.Untouched) {
-          model.editGameSquare(squareView.getPosition(), GameSquare.SquareState.TouchedEmpty);
-        }
-      }*/
-
     } catch (NumberFormatException e) {
       System.out.println("Wrong input. Try again");
       reader.readLine();
@@ -129,9 +120,6 @@ public class MainConsole {
   }
 
   public synchronized void paint() {
-//    if (!gameModel.isGameOn())
-//      return;
-    // clear
     System.out.flush();
 
     // print mines
@@ -142,16 +130,14 @@ public class MainConsole {
 
     // print grid
     consoleGrid.paintGrid(gameModel.getGameGridModel().getProperty());
-
-//request menu
-
-
   }
 
-  enum MenuItem {Exit, About, Start, Scores}
-
   private MenuItem requestMenu(BufferedReader reader) throws IOException {
-    while (true) {
+    boolean flag;
+    MenuItem item;
+
+    do {
+      flag = true;
       System.out.flush();
       System.out.println("Game menu:");
       System.out.println("\tSTART to start new game");
@@ -160,23 +146,21 @@ public class MainConsole {
       System.out.println("\tEXIT to exit");
 
       String str = reader.readLine();
-      MenuItem item = MenuItem.Scores;
-      boolean flag = false;
       switch (str.toLowerCase()) {
         case "start" -> item = MenuItem.Start;
         case "exit" -> item = MenuItem.Exit;
         case "about" -> item = MenuItem.About;
         case "scores" -> item = MenuItem.Scores;
         default -> {
-          flag = true;
+          item = MenuItem.Scores;
+          flag = false;
           System.out.println("There's no such menu item. Please, pick one out of the list.");
           reader.readLine();
         }
       }
+    } while (!flag);
 
-      if (!flag)
-        return item;
-    }
+    return item;
   }
 
   private boolean requestGameMode(BufferedReader reader) throws IOException {
@@ -221,7 +205,7 @@ public class MainConsole {
           continue;
         }
 
-        if (!gameModel.checkCustomMode(rows, cols, numberOfMines)) {
+        if (!GameGrid.checkGridParameters(rows, cols, numberOfMines)) {
           System.out.println("Incorrect parameters. Please, try again.");
           reader.readLine();
         } else
@@ -233,6 +217,4 @@ public class MainConsole {
 
     return false;
   }
-
-
 }

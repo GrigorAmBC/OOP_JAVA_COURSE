@@ -34,8 +34,16 @@ public class GameGrid {
     return gridList;
   }
 
+  public static boolean checkGridParameters(int rows, int cols, int numberOfMines) {
+    return rows > 0 && cols > 0
+            && rows < 16 && cols < 30
+            && numberOfMines >= 0 && numberOfMines < rows * cols;
+  }
+
   public void setup(int rows, int columns, int numberOfMines) {
-    assert (rows > 0 && columns > 0 && numberOfMines > 0);
+    if (!(checkGridParameters(rows, columns, numberOfMines))) {
+      throw new IllegalArgumentException("Wrong game grid parameters.");
+    }
     this.rows = rows;
     this.cols = columns;
     this.numberOfMines = numberOfMines;
@@ -54,7 +62,7 @@ public class GameGrid {
     setNumberOfMinesAroundSquares();
   }
 
-  public boolean openSquares(GameSquare.SquareState state1, int position) {
+  public boolean openSquares(int position) {
     if (getSquare(position).getState() != GameSquare.SquareState.TouchedEmpty)
       return false;
 
@@ -120,13 +128,10 @@ public class GameGrid {
   }
 
   public GameSquare getSquare(int i) {
-    assert (i < gridList.size());
     return gridList.get(i);
   }
 
   public void openGameSquaresAroundZero(int position) {
-    assert position < gridList.size();
-
     if (gridList.get(position).getState() == GameSquare.SquareState.TouchedEmpty) {
       return;
     } else if (gridList.get(position).getNumberOfMinesAround() != 0) {

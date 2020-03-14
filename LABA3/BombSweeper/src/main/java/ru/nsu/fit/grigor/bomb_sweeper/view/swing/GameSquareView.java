@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view.swing_view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.swing;
 
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameSquare;
 
@@ -12,11 +12,10 @@ public class GameSquareView extends JButton {
   public final static int SIZE = 30;
 
   static {
-    iconFlag = new ImageIcon(ClassLoader.getSystemResource("flag_square.jpg"));
-    iconMine = new ImageIcon(ClassLoader.getSystemResource("mine_square.jpg"));
+    iconFlag = new ImageIcon(ClassLoader.getSystemResource("flag_square.png"));
+    iconMine = new ImageIcon(ClassLoader.getSystemResource("mine_square.png"));
     iconUntouched = new ImageIcon(ClassLoader.getSystemResource("untouched_square.png"));//"untouched_square.png"));
   }
-
 
   public GameSquareView() {
     this.state = GameSquare.SquareState.Untouched;

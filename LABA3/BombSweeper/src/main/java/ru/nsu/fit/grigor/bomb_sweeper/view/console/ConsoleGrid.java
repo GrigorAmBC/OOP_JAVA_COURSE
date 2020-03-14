@@ -1,4 +1,4 @@
-package ru.nsu.fit.grigor.bomb_sweeper.view.console_view;
+package ru.nsu.fit.grigor.bomb_sweeper.view.console;
 
 import org.jetbrains.annotations.NotNull;
 import ru.nsu.fit.grigor.bomb_sweeper.model.GameGrid;
