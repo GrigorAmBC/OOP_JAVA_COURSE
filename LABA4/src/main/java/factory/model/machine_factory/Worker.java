@@ -25,25 +25,17 @@ public class Worker implements Task, TaskListener {
     this.machineWarehouse = factory.getMachineWarehouse();
   }
 
-  public Worker(@NotNull Worker worker) {//todo:delete
-    this.factory = worker.factory;
-    this.accessoryWarehouse = worker.accessoryWarehouse;
-    this.engineWarehouse = worker.engineWarehouse;
-    this.frameWarehouse = worker.frameWarehouse;
-    this.machineWarehouse = worker.machineWarehouse;
-  }
-
   @Override
   public void performWork() {
     // work imitation
-    getMachinePartFromWarehouse();
+//    getMachinePartFromWarehouse();
     MachineAccessory accessory = accessoryWarehouse.removeItem();
-    getMachinePartFromWarehouse();
+//    getMachinePartFromWarehouse();
     MachineFrame frame = frameWarehouse.removeItem();
-    getMachinePartFromWarehouse();
+//    getMachinePartFromWarehouse();
     MachineEngine engine = engineWarehouse.removeItem();
 
-    constructMachine();
+//    constructMachine();
     createdMachine = new Machine(frame, accessory, engine);
   }
 
@@ -54,18 +46,18 @@ public class Worker implements Task, TaskListener {
   }
 
   private void getMachinePartFromWarehouse() {
-    try {
+    /*try {
       Thread.sleep(500);
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }
+    }*/
   }
 
   private void constructMachine() {
-    try {
+    /*try {
       Thread.sleep(2000);
     } catch (InterruptedException e) {
       e.printStackTrace();
-    }
+    }*/
   }
 }

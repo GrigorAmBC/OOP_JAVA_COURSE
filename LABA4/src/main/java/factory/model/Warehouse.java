@@ -12,7 +12,6 @@ public class Warehouse<P> {
   private WarehouseItemListener itemListener = null;
 
   public Warehouse(int capacity) {
-    assert capacity > 0;
     this.capacity = capacity;
     items = new ArrayList<>();
   }
@@ -33,6 +32,7 @@ public class Warehouse<P> {
 
   public synchronized P removeItem() {
     try {
+//      while (items.isEmpty()) wait();
       while (items.isEmpty()) wait();
       if (itemListener != null)
         itemListener.itemRemoved();

@@ -16,6 +16,7 @@ public class MainView extends JFrame {
     setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     setSize(new Dimension(1200, 680));
     setLayout(new GridBagLayout());
+    setResizable(false);
 
     GridBagConstraints gc = new GridBagConstraints();
     gc.gridx = 0;

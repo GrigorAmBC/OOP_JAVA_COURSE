@@ -1,0 +1,9 @@
+- = SubtractCommand
++ = AddCommand
+* = MultiplyCommand
+/ = DivideCommand
+SQRT = SQRTCommand
+POP = PopCommand
+PUSH = PushCommand
+PRINT = PrintCommand
+DEFINE = DefineCommand

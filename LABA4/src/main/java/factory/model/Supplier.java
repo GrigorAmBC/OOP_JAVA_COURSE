@@ -1,14 +1,13 @@
 package factory.model;
 
 import factory.model.interfaces.PeriodSetter;
-import factory.model.interfaces.CloseableThread;
 import factory.model.machine.MachinePart;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class Supplier<P extends MachinePart> extends Thread
-        implements PeriodSetter, CloseableThread {
+        implements PeriodSetter {
   private Warehouse<P> warehouse;
-  private long creationPeriod = 5000;
+  private long creationPeriod = 1000;
   private int numberOfItemsProduced = 0;
   private boolean threadActive = true;
 
@@ -32,7 +31,6 @@ public abstract class Supplier<P extends MachinePart> extends Thread
 
   @Override
   public void setPeriod(long millis) {
-    assert millis > 0;
     this.creationPeriod = millis;
   }
 
@@ -42,8 +40,8 @@ public abstract class Supplier<P extends MachinePart> extends Thread
     return numberOfItemsProduced;
   }
 
-  @Override
+  /*@Override
   public void closeThread() {
     threadActive = false;
-  }
+  }*/
 }

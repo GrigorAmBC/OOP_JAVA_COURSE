@@ -15,7 +15,7 @@ public class MachineFactory {
   private Warehouse<MachineFrame> frameWarehouse;
   private Warehouse<Machine> machineWarehouse;
   private ThreadPool threadPool;
-  private int machinesBuilt = 0;
+  private int machinesBuilt;
   private int numberOfWorkers;
 
   public synchronized void createMachine() {
@@ -27,20 +27,19 @@ public class MachineFactory {
     machinesBuilt++;
   }
 
-  public int getNumberOfMachinesBuilt() {
+  public synchronized int getNumberOfMachinesBuilt() {
     return machinesBuilt;
   }
 
-  public int getNumberOfWorkers() {
+  public synchronized int getNumberOfWorkers() {
     return numberOfWorkers;
   }
 
-  public int getNumberOfBuildingMachines() {
+  public synchronized int getNumberOfBuildingMachines() {
     return threadPool.getNumberOfTasksLeft();
   }
 
   public void setNumberOfWorkers(int numberOfWorkers) {
-    assert threadPool == null;
     this.numberOfWorkers = numberOfWorkers;
     threadPool = new ThreadPool(numberOfWorkers);
   }

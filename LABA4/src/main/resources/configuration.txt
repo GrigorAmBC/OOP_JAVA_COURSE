@@ -7,4 +7,4 @@ FrameSuppliers=5
 EngineSuppliers=5
 Workers=10
 Dealers=10
-LogSale=true
+LogSale=false

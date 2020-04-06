@@ -25,8 +25,4 @@ public class ThreadPoolTask {
       listener.taskFinished(task);
   }
 
-  public void interrupted() {
-    if (listener != null)
-      listener.taskInterrupted(task);
-  }
 }

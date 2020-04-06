@@ -1,22 +1,21 @@
 package factory.model;
 
-import factory.model.interfaces.CloseableThread;
 import factory.model.interfaces.PeriodSetter;
 import factory.model.machine.Machine;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-public class Dealer extends Thread implements PeriodSetter, CloseableThread {
-  private long requestPeriod = 5000;
+public class Dealer extends Thread implements PeriodSetter {
+  private long requestPeriod = 10;
   private Warehouse<Machine> machineWarehouse;
   private final int id;
   private boolean threadActive = true;
   private static boolean logSale = false;
   private static int dealerCount = 0;
+  private String saleLogFileName = "sales.log";
 
   public Dealer(@NotNull Warehouse<Machine> machineWarehouse) {
     this.machineWarehouse = machineWarehouse;
@@ -31,8 +30,8 @@ public class Dealer extends Thread implements PeriodSetter, CloseableThread {
       try {
         Thread.sleep(requestPeriod);
         Machine machine = machineWarehouse.removeItem();
-        if (!logSale) continue;
-        logSale(machine);
+        if (logSale)
+          logSale(machine);
       } catch (InterruptedException e) {
         e.printStackTrace();
       }
@@ -45,14 +44,13 @@ public class Dealer extends Thread implements PeriodSetter, CloseableThread {
 
   @Override
   public void setPeriod(long millis) {
-    assert millis > 0;
     this.requestPeriod = millis;
   }
 
-  @Override
+  /*@Override
   public void closeThread() {
     threadActive = false;
-  }
+  }*/
 
   private void logSale(@NotNull Machine machine) {
     // todo: move this to another class??
@@ -70,24 +68,10 @@ public class Dealer extends Thread implements PeriodSetter, CloseableThread {
             .append(machine.getEngineId())
             .append(").\n");
 
-//    System.out.println(Dealer.class.getClassLoader().getResource("sales.log").getPath());
-
-    File file = new File(Dealer.class.getClassLoader().getResource("sales.log").getPath());
-//    File file = new File("C:\\Users\\Grigor\\IdeaProjects\\OOP_JAVA_COURSE\\LABA4\\src\\main\\resources\\sales.log");
-    FileWriter fw = null;
-    try {
-      fw = new FileWriter(file.getAbsoluteFile(), true);
+    try (FileWriter fw = new FileWriter(saleLogFileName, true)) {
       fw.append(builder.toString());
     } catch (IOException e) {
       e.printStackTrace();
-    } finally {
-      if (fw != null) {
-        try {
-          fw.close();
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
-      }
     }
   }
 }

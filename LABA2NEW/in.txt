@@ -1,0 +1,24 @@
+PUSH 5
+DEFINE T 5
+PUSH T
++
+PUSH T
++
+PUSH T
+*
+PRINT
+##Again
+# !####
+# PRINT
+# JOE
+# PUSH 5
+# DEFINE K 8
+ #PUSH K
+# POP
+# PUSH K
+ #PUSH K
+# SQRT
+# *
+ #PRINT
+# ironic
+# DEFINE PRINT 10

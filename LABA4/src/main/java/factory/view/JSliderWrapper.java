@@ -21,12 +21,12 @@ public class JSliderWrapper extends JPanel implements ChangeListener {
   @Override
   public void stateChanged(ChangeEvent e) {
     for (PeriodSetter setter : subjects) {
-      setter.setPeriod(((JSlider) e.getSource()).getValue() * 1000);
+      setter.setPeriod(((JSlider) e.getSource()).getValue() *10);
     }
   }
 
   private void setupSlider(String name) {
-    JSlider slider = new JSlider(1, 10);
+    JSlider slider = new JSlider(0, 10);
     slider.addChangeListener(this);
     slider.setPaintLabels(true);
     slider.setMajorTickSpacing(1);
