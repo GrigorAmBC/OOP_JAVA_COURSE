@@ -1,5 +1,5 @@
 package threadpool;
 
 public interface Task {
-  void performWork();
+  void performWork() throws InterruptedException;
 }

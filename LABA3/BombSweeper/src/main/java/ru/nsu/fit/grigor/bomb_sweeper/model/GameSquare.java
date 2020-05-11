@@ -7,10 +7,11 @@ public class GameSquare {
   private SquareState state = SquareState.Untouched;
   private int numberOfMinsAround = 0;
 
-  public enum SquareState {
-    TouchedEmpty, Flag, Untouched, Exploded
-  }
 
+
+  public enum SquareState {
+    TouchedEmpty, Flag, Untouched, Exploded;
+  }
   public GameSquare(int position, boolean isBomb) {
     this.position = position;
     bomb = isBomb;
@@ -32,6 +33,11 @@ public class GameSquare {
 
   public boolean hasMine() {
     return bomb;
+  }
+
+  public boolean hasFlag() {
+    return state == GameSquare.SquareState.Flag;
+
   }
 
   public SquareState getState() {

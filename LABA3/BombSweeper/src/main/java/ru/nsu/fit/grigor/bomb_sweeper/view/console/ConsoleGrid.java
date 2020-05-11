@@ -22,13 +22,13 @@ public class ConsoleGrid {
       System.out.print(i + (i < 10 ? "   " : "  "));
       for (int j = 0; j < cols; j++) {
         GameSquare square = squareList.get(i * rows + j);
-        System.out.print(switch (square.getState()) {
-          case Flag -> "F";
-          case TouchedEmpty -> square.getNumberOfMinesAround();
-          case Untouched -> "N";
-          case Exploded -> "*";
-        });
-        System.out.print("  ");
+        String obj = switch (square.getState()) {
+          case Flag -> "F ";
+          case TouchedEmpty -> ""+square.getNumberOfMinesAround()+" ";
+          case Untouched -> "N ";
+          case Exploded -> "* ";
+        };
+        System.out.print(obj);
       }
       System.out.println();
     }

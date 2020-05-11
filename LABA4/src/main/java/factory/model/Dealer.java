@@ -1,5 +1,6 @@
 package factory.model;
 
+import factory.model.interfaces.CloseableThread;
 import factory.model.interfaces.PeriodSetter;
 import factory.model.machine.Machine;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +9,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
 
-public class Dealer extends Thread implements PeriodSetter {
+public class Dealer extends Thread implements PeriodSetter, CloseableThread {
   private long requestPeriod = 10;
   private Warehouse<Machine> machineWarehouse;
   private final int id;
@@ -32,10 +33,16 @@ public class Dealer extends Thread implements PeriodSetter {
         Machine machine = machineWarehouse.removeItem();
         if (logSale)
           logSale(machine);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
+      } catch (InterruptedException ignored) {
+        System.out.println("A dealer thread (" + id + ") was interrupted!");
+        return;
       }
     }
+  }
+
+  @Override
+  public void closeThread() {
+    interrupt();
   }
 
   public static void setLogSale(boolean logSale) {
@@ -47,10 +54,6 @@ public class Dealer extends Thread implements PeriodSetter {
     this.requestPeriod = millis;
   }
 
-  /*@Override
-  public void closeThread() {
-    threadActive = false;
-  }*/
 
   private void logSale(@NotNull Machine machine) {
     // todo: move this to another class??

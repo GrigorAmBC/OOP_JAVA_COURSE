@@ -1,7 +1,6 @@
 package view;
 
 import model.entity.Message;
-import model.entity.User;
 import model.port.Repository;
 
 import javax.swing.*;
@@ -68,7 +67,6 @@ public class ChatView extends JFrame {
       }
     });
 
-//todo: try using this: SwingUtilities.invokeLater();
     setLocationRelativeTo(null);
     setVisible(true);
     repository.startFetchingData();

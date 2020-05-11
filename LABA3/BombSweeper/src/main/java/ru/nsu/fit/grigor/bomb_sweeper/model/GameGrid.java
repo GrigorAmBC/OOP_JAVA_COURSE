@@ -36,8 +36,8 @@ public class GameGrid {
 
   public static boolean checkGridParameters(int rows, int cols, int numberOfMines) {
     return rows > 0 && cols > 0
-            && rows < 16 && cols < 30
-            && numberOfMines >= 0 && numberOfMines < rows * cols;
+            && rows <= 16 && cols <= 30
+            && numberOfMines >= 0 && numberOfMines <= rows * cols;
   }
 
   public void setup(int rows, int columns, int numberOfMines) {
@@ -63,18 +63,21 @@ public class GameGrid {
   }
 
   public boolean openSquares(int position) {
-    if (getSquare(position).getState() != GameSquare.SquareState.TouchedEmpty)
+    if (getSquare(position).getState() != GameSquare.SquareState.TouchedEmpty) {
       return false;
+    }
 
     int curX = getXByPosition(position), curY = getYByPosition(position);
     int k = 0;
-    for (int x = curX - 1; x <= curX + 1; x++)
-      for (int y = curY - 1; y <= curY + 1; y++)
-        if (x != curX || y != curY)
-          if (checkCoordinate(x, y))
-            if (getSquare(x, y).getState() == GameSquare.SquareState.Flag) {
-              k++;
-            }
+    for (int x = curX - 1; x <= curX + 1; x++) {
+      for (int y = curY - 1; y <= curY + 1; y++) {
+        if ((x != curX || y != curY)
+                && checkCoordinate(x, y)
+                && getSquare(x, y).hasFlag()) {
+          k++;
+        }
+      }
+    }
 
     if (k != getSquare(position).getNumberOfMinesAround()) {
       return false;

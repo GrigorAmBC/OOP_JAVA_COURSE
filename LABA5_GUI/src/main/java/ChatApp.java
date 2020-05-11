@@ -1,4 +1,4 @@
-import model.NetworkRepository;
+import adapter.SerializedNetworkRepository;
 import model.entity.User;
 import model.port.Repository;
 import view.ChatView;
@@ -12,7 +12,7 @@ public class ChatApp {
   public ChatApp() {
     String userName = requestUserName();
 
-    repository = new NetworkRepository(new User(userName));
+    repository = new SerializedNetworkRepository(new User(userName));
     chatView = new ChatView(repository, "Chat");
 
   }

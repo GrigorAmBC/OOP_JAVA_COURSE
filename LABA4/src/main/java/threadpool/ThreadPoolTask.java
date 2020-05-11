@@ -16,13 +16,12 @@ public class ThreadPoolTask {
       listener.taskStarted(task);
   }
 
-  public void go() {
+  public void go() throws InterruptedException{
     task.performWork();
   }
 
-  public void finish() {
+  public void finish() throws InterruptedException{
     if (listener != null)
       listener.taskFinished(task);
   }
-
 }

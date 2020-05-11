@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Warehouse<P> {
   private final int capacity;
-  private List<P> items;
+  private final List<P> items;
   private WarehouseItemListener itemListener = null;
 
   public Warehouse(int capacity) {
@@ -16,32 +16,22 @@ public class Warehouse<P> {
     items = new ArrayList<>();
   }
 
-  public synchronized void addItem(@NotNull P item) {
-    if (items.size() < capacity) {
+  public void addItem(@NotNull P item) throws InterruptedException {//todo
+    synchronized (items) {
+      while (items.size() >= capacity) items.wait();
       items.add(item);
-      notify();
-    } else {
-      try {
-        wait();
-        items.add(item);
-      } catch (InterruptedException e) {
-        e.printStackTrace();
-      }
+      items.notify();
     }
   }
 
-  public synchronized P removeItem() {
-    try {
-//      while (items.isEmpty()) wait();
-      while (items.isEmpty()) wait();
+  public P removeItem() throws InterruptedException {
+    synchronized (items) {
+      while (items.isEmpty()) items.wait();
       if (itemListener != null)
         itemListener.itemRemoved();
-      notify();
+      items.notify();
       return items.remove(0);
-    } catch (InterruptedException e) {
-      e.printStackTrace();
     }
-    return null;
   }
 
   public int getCapacity() {

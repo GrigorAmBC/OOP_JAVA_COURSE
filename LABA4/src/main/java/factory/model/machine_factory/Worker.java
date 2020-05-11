@@ -26,21 +26,18 @@ public class Worker implements Task, TaskListener {
   }
 
   @Override
-  public void performWork() {
-    // work imitation
-//    getMachinePartFromWarehouse();
+  public void performWork() throws InterruptedException {
     MachineAccessory accessory = accessoryWarehouse.removeItem();
-//    getMachinePartFromWarehouse();
+
     MachineFrame frame = frameWarehouse.removeItem();
-//    getMachinePartFromWarehouse();
+
     MachineEngine engine = engineWarehouse.removeItem();
 
-//    constructMachine();
     createdMachine = new Machine(frame, accessory, engine);
   }
 
   @Override
-  public void taskFinished(Task task) {
+  public void taskFinished(Task task) throws InterruptedException {
     factory.appendMachinesBuilt();
     machineWarehouse.addItem(createdMachine);
   }

@@ -24,7 +24,7 @@ public class Model<P> {
     notifySubscribers();
   }
 
-  protected void notifySubscribers() {
+  public void notifySubscribers() {
     for (final IModelSubscriber<P> subscriber : subscribers) {
         subscriber.modelChanged(this);
     }

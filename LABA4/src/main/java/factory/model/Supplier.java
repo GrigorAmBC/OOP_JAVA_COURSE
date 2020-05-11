@@ -1,15 +1,20 @@
 package factory.model;
 
+import factory.model.interfaces.CloseableThread;
 import factory.model.interfaces.PeriodSetter;
 import factory.model.machine.MachinePart;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.UUID;
+
 public abstract class Supplier<P extends MachinePart> extends Thread
-        implements PeriodSetter {
+        implements PeriodSetter, CloseableThread {
   private Warehouse<P> warehouse;
-  private long creationPeriod = 1000;
+  private long creationPeriod = 100;
   private int numberOfItemsProduced = 0;
   private boolean threadActive = true;
+  private final String id = UUID.randomUUID().toString();
+  ;
 
   public Supplier(@NotNull Warehouse<P> warehouse) {
     this.warehouse = warehouse;
@@ -24,7 +29,8 @@ public abstract class Supplier<P extends MachinePart> extends Thread
         numberOfItemsProduced++;
         warehouse.addItem(createItem());
       } catch (InterruptedException e) {
-        e.printStackTrace();
+        System.out.println("A supplier thread (" + id + ") was interrupted!");
+        return;
       }
     }
   }
@@ -40,8 +46,8 @@ public abstract class Supplier<P extends MachinePart> extends Thread
     return numberOfItemsProduced;
   }
 
-  /*@Override
+  @Override
   public void closeThread() {
-    threadActive = false;
-  }*/
+    interrupt();
+  }
 }

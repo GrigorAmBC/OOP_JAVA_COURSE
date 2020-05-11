@@ -8,8 +8,9 @@ import java.util.List;
 
 public class GameModel {
   public enum Mode {
-    Novice, Advanced(), Expert, Custom
+    Novice, Advanced, Expert, Custom
   }
+
   private Model<GameGrid> gameGridModel;
   private Model<Integer> timerModel;
   private Model<Integer> mineModel;
@@ -20,6 +21,7 @@ public class GameModel {
   private ScoreRepository scoreRepository;
 
   public GameModel(@NotNull MessageViewer messageViewer) {
+    this.messageViewer = messageViewer;
     this.scoreRepository = new ScoreSavior(messageViewer);
     gameGridModel = new Model<>(new GameGrid());
     timerModel = new Model<>(0);
@@ -29,15 +31,11 @@ public class GameModel {
     timer = new Timer(1000, e -> timerModel.setProperty(timerModel.getProperty() + 1));
   }
 
-  public void doubleClick(GameSquare.SquareState state, int position) {
+  public void doubleClick(int position) {
     if (!gameOn)
       return;
     if (gameGridModel.getProperty().openSquares(position)) {
-      if (gameGridModel.getProperty().checkResult()) {
-        gameGridModel.setProperty(gameGridModel.getProperty());
-        gameOver(gameGridModel.getProperty().getResult());
-      } else
-        gameGridModel.setProperty(gameGridModel.getProperty());
+      checkGameEnd();
     }
   }
 
@@ -70,7 +68,7 @@ public class GameModel {
     } else if (mode == Mode.Expert) {
       gameGridModel.getProperty().setup(16, 30, 99);
       this.mineModel.setProperty(99);
-    } else  {
+    } else {
       throw new IllegalArgumentException("Wrong game mode. Cannot operate.");
     }
 
@@ -81,7 +79,8 @@ public class GameModel {
 
   public void startCustomGame(int rows, int cols, int numberOfMines) {
     if (!GameGrid.checkGridParameters(rows, cols, numberOfMines)) {
-      messageViewer.showMessage("Custom mode parameters are wrong!");
+      if (messageViewer != null)
+        messageViewer.showMessage("Custom mode parameters are wrong!");
       return;
     }
 
@@ -135,7 +134,10 @@ public class GameModel {
         mineModel.setProperty(mineModel.getProperty() + 1);
       }
     }
+    checkGameEnd();
+  }
 
+  private void checkGameEnd() {
     gameGridModel.getProperty().checkResult();
     switch (gameGridModel.getProperty().getResult()) {
       case Win -> {
@@ -150,6 +152,7 @@ public class GameModel {
       default -> gameGridModel.setProperty(gameGridModel.getProperty());
     }
   }
+
 
   private void gameOver(GameGrid.Result result) {
     timer.stop();

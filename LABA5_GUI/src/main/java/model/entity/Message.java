@@ -26,4 +26,7 @@ public class Message implements Serializable {
     return text;
   }
 
+  public long getTime() {
+    return date.getTime();
+  }
 }

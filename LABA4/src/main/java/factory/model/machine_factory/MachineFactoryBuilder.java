@@ -8,34 +8,41 @@ import factory.model.machine.MachineFrame;
 import org.jetbrains.annotations.NotNull;
 
 public class MachineFactoryBuilder {
-  private MachineFactory factory = new MachineFactory();
+  private Warehouse<MachineEngine> engineWarehouse;
+  private Warehouse<MachineAccessory> accessoryWarehouse;
+  private Warehouse<MachineFrame> frameWarehouse;
+  private Warehouse<Machine> machineWarehouse;
+  private int numberOfWorkers;
 
   public MachineFactoryBuilder setFrameWarehouse(@NotNull Warehouse<MachineFrame> warehouse) {
-    factory.setFrameWarehouse(warehouse);
+    frameWarehouse = warehouse;
     return this;
   }
 
   public MachineFactoryBuilder setAccessoryWarehouse(@NotNull Warehouse<MachineAccessory> warehouse) {
-    factory.setAccessoryWarehouse(warehouse);
+    accessoryWarehouse = warehouse;
     return this;
   }
 
   public MachineFactoryBuilder setEngineWarehouse(@NotNull Warehouse<MachineEngine> warehouse) {
-    factory.setEngineWarehouse(warehouse);
+    engineWarehouse = warehouse;
     return this;
   }
 
   public MachineFactoryBuilder setNumberOfWorkers(int numberOfWorkers) {
-    factory.setNumberOfWorkers(numberOfWorkers);
+    this.numberOfWorkers = numberOfWorkers;
     return this;
   }
 
   public MachineFactoryBuilder setMachineWarehouse(@NotNull Warehouse<Machine> warehouse) {
-    factory.setMachineWarehouse(warehouse);
+    machineWarehouse = warehouse;
     return this;
   }
 
   public MachineFactory buildMachineFactory() {
+    MachineFactory factory = new MachineFactory(machineWarehouse, frameWarehouse,
+            accessoryWarehouse, engineWarehouse,
+            numberOfWorkers);
     return factory;
   }
 }

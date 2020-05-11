@@ -88,6 +88,12 @@ public class MainView extends JFrame {
     JSliderWrapper sliderDealer = new JSliderWrapper(manager.getDealers(), "Dealer");
     add(sliderDealer, gc);
 
+    gc.gridy = 4;
+    gc.gridx = 2;
+    JButton btn = new JButton("Close");
+    btn.addActionListener(e -> manager.closeThreads());
+    add(btn, gc);
+
     pack();
     setLocationRelativeTo(null);
     setVisible(true);

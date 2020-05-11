@@ -1,20 +1,21 @@
 package threadpool;
 
+import factory.model.interfaces.CloseableThread;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ThreadPool  {
+public class ThreadPool implements CloseableThread {
   private final List<ThreadPoolTask> taskQueue;//todo:replace with List and  synchronize
   private List<WorkerThread> availableThreads;
 
- /* @Override
-  public void closeThread() {
+  @Override
+  public void closeThread() { // todo
     for (WorkerThread thread : availableThreads) {
       thread.closeThread();
     }
-  }*/
+  }
 
   public ThreadPool(int numberOfThreads) {// todo: maybe choose amount of threads??
     taskQueue = new ArrayList<>();
@@ -42,33 +43,37 @@ public class ThreadPool  {
     }
   }
 
-  private class WorkerThread extends Thread {
+  private class WorkerThread extends Thread implements CloseableThread {
     private volatile boolean threadActive = true;
-
     @Override
     public void run() {
       ThreadPoolTask task;
-      while (threadActive) {
-        synchronized (taskQueue) {
-          while (taskQueue.isEmpty()) {
-            try {
-              taskQueue.wait();
-            } catch (InterruptedException e) {
-              e.printStackTrace();
-            }
-          }
 
-          task = taskQueue.remove(taskQueue.size() - 1);
+      while (threadActive) {
+        try {
+          synchronized (taskQueue) {
+            while (taskQueue.isEmpty()) {
+
+              taskQueue.wait();
+
+            }
+
+            task = taskQueue.remove(taskQueue.size() - 1);
+          }
+          task.prepare();
+          task.go();
+          task.finish();
+        } catch (InterruptedException e) {
+          System.out.println("A threadpool thread interrupted!");
+          return;
         }
-        task.prepare();
-        task.go();
-        task.finish();
       }
     }
 
-    /*@Override
+    @Override
     public void closeThread() {
       threadActive = false;
-    }*/
+      interrupt();
+    }
   }
 }

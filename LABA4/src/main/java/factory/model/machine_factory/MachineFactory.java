@@ -2,6 +2,7 @@ package factory.model.machine_factory;
 
 
 import factory.model.Warehouse;
+import factory.model.interfaces.CloseableThread;
 import factory.model.machine.Machine;
 import factory.model.machine.MachineAccessory;
 import factory.model.machine.MachineEngine;
@@ -9,14 +10,25 @@ import factory.model.machine.MachineFrame;
 import org.jetbrains.annotations.NotNull;
 import threadpool.ThreadPool;
 
-public class MachineFactory {
+public class MachineFactory implements CloseableThread {
   private Warehouse<MachineEngine> engineWarehouse;
   private Warehouse<MachineAccessory> accessoryWarehouse;
   private Warehouse<MachineFrame> frameWarehouse;
   private Warehouse<Machine> machineWarehouse;
-  private ThreadPool threadPool;
+  private final ThreadPool threadPool;
   private int machinesBuilt;
   private int numberOfWorkers;
+
+  public MachineFactory(@NotNull Warehouse<Machine> machineWarehouse, @NotNull Warehouse<MachineFrame> frameWarehouse, @NotNull Warehouse<MachineAccessory> accessoryWarehouse, @NotNull Warehouse<MachineEngine> engineWarehouse,  int numberOfWorkers) {
+    this.numberOfWorkers = numberOfWorkers;
+    threadPool = new ThreadPool(numberOfWorkers);
+
+    this.engineWarehouse = engineWarehouse;
+    this.accessoryWarehouse = accessoryWarehouse;
+    this.frameWarehouse = frameWarehouse;
+    this.machineWarehouse = machineWarehouse;
+  }
+
 
   public synchronized void createMachine() {
     Worker worker = new Worker(this);
@@ -31,17 +43,14 @@ public class MachineFactory {
     return machinesBuilt;
   }
 
-  public synchronized int getNumberOfWorkers() {
+  public int getNumberOfWorkers() {
     return numberOfWorkers;
   }
 
-  public synchronized int getNumberOfBuildingMachines() {
-    return threadPool.getNumberOfTasksLeft();
-  }
-
-  public void setNumberOfWorkers(int numberOfWorkers) {
-    this.numberOfWorkers = numberOfWorkers;
-    threadPool = new ThreadPool(numberOfWorkers);
+  public int getNumberOfBuildingMachines() {
+    synchronized (threadPool) {
+      return threadPool.getNumberOfTasksLeft();
+    }
   }
 
   public Warehouse<MachineEngine> getEngineWarehouse() {
@@ -75,34 +84,9 @@ public class MachineFactory {
   public void setMachineWarehouse(@NotNull Warehouse<Machine> machineWarehouse) {
     this.machineWarehouse = machineWarehouse;
   }
-}
 
-
-
-
-
-
-
-
-
-/*
-
-public class MachineFactory {
-  private Warehouse<MachineEngine> engineWarehouse;
-  private Warehouse<MachineAccessory> accessoryWarehouse;
-  private Warehouse<MachineFrame> frameWarehouse;
-  private ThreadPool threadPool;
-
-
-  public MachineFactory(int numberOfWorkers, List<Warehouse<MachinePart>> warehouses) {
-    threadPool = new ThreadPool(numberOfWorkers);
-    engineWarehouse =
-
+  @Override
+  public void closeThread() {
+    threadPool.closeThread();
   }
-
-  public void createMachine() {
-    threadPool.addTask(task, );
-  }
-
 }
-*/

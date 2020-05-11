@@ -129,4 +129,29 @@ public class MachineCreationManager {
   public MachineFactory getFactory() {
     return factory;
   }
+
+  public void closeThreads() {
+    // suppliers
+    for (Supplier<MachineAccessory> supplier : accessorySuppliers) {
+      supplier.closeThread();
+    }
+
+    for (Supplier<MachineEngine> supplier : engineSuppliers) {
+      supplier.closeThread();
+    }
+
+    for (Supplier<MachineFrame> supplier : frameSuppliers) {
+      supplier.closeThread();
+    }
+    // dealers
+    for (Dealer dealer : dealers) {
+      dealer.closeThread();
+    }
+    // threadpool
+    factory.closeThread();
+
+    // warehouse controller
+    controller.closeThread();
+  }
+
 }

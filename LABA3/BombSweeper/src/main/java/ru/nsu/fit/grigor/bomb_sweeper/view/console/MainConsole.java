@@ -138,7 +138,6 @@ public class MainConsole {
 
     do {
       flag = true;
-      System.out.flush();
       System.out.println("Game menu:");
       System.out.println("\tSTART to start new game");
       System.out.println("\tSCORES to see high scores");
@@ -164,7 +163,6 @@ public class MainConsole {
   }
 
   private boolean requestGameMode(BufferedReader reader) throws IOException {
-    System.out.flush();
     System.out.println("Choose the game mode, please");
     System.out.println("Novice, Advanced, Expert, Custom");
     System.out.println("Choose from 1 to 4 according to modes.");
@@ -172,14 +170,8 @@ public class MainConsole {
     String str = reader.readLine();
     GameModel.Mode mode;
     try {
-      switch (Integer.parseInt(str.toLowerCase())) {
-        case 1 -> mode = Novice;
-        case 2 -> mode = Advanced;
-        case 3 -> mode = Expert;
-        case 4 -> mode = Custom;
-        default -> throw new NumberFormatException();
-      }
-    } catch (NumberFormatException e) {
+      mode = GameModel.Mode.values()[Integer.parseInt(str) - 1];
+    } catch (RuntimeException e) {
       System.out.println("Wrong mode! Please, try again.");
       System.out.println("Press a key to continue");
       reader.readLine();

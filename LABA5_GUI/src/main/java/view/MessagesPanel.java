@@ -8,11 +8,10 @@ import model.port.Repository;
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
 import java.awt.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class MessagesPanel extends JTextPane implements IModelSubscriber<List<Message>> {

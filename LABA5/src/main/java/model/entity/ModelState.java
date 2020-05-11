@@ -1,22 +1,22 @@
 package model.entity;
 
 public class ModelState {
-  private boolean userStateChanged = false;
-  private boolean messageStateChanged = false;
+  private boolean isUserStateChanged = false;
+  private boolean isMessageStateChanged = false;
 
   public void setUserStateChanged(boolean userStateChanged) {
-    this.userStateChanged = userStateChanged;
+    this.isUserStateChanged = userStateChanged;
   }
 
-  public boolean isUserStateChanged() {
-    return userStateChanged;
+  public boolean userStateChanged() {
+    return isUserStateChanged;
   }
 
-  public boolean isMessageStateChanged() {
-    return messageStateChanged;
+  public boolean messageStateChanged() {
+    return isMessageStateChanged;
   }
 
   public void setMessageStateChanged(boolean messageStateChanged) {
-    this.messageStateChanged = messageStateChanged;
+    this.isMessageStateChanged = messageStateChanged;
   }
 }

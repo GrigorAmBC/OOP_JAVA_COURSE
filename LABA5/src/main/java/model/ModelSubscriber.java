@@ -1,5 +1,5 @@
 package model;
 
-public interface IModelSubscriber<P> {
+public interface ModelSubscriber<P> {
   void modelChanged(Model<P> model);
 }

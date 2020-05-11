@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.logging.Logger;
 
 public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
   private int rows;
@@ -39,7 +38,7 @@ public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
           GameSquare.SquareState state = squareView.getState();
           if (e.getClickCount() == 2) {
             if (state == GameSquare.SquareState.TouchedEmpty) {
-              model.doubleClick(state, squareView.getPosition());
+              model.doubleClick(squareView.getPosition());
             }
           }
           if (SwingUtilities.isRightMouseButton(e)) {
@@ -76,9 +75,9 @@ public class GameGridView extends JPanel implements ModelSubscriber<GameGrid> {
       squareView.setState(square.getState(), square.getNumberOfMinesAround());
     }
 
-    if (dataIterator.hasNext() || viewIterator.hasNext()) {//todo: wtf?
+ /*   if (dataIterator.hasNext() || viewIterator.hasNext()) {//todo: wtf?
       Logger.getGlobal().info("Mismatch between number of swing squares and data squares.");
-    }
+    }*/
   }
 
   public void setControllerModel(GameModel model) {
